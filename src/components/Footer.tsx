@@ -9,7 +9,7 @@ export function Footer() {
     <footer className="relative w-full bg-cream text-walnut pt-32 pb-12 overflow-hidden">
       <div className="max-w-[1700px] mx-auto px-6 md:px-12">
         <div className="grid md:grid-cols-3 gap-8 md:gap-6 mb-32 md:mb-48 font-mono text-[11px] tracking-[0.2em] uppercase opacity-60">
-          <span>Castle.</span>
+          <span>Our Moving Castle</span>
           <span className="md:text-center">02 · 06 · 2026</span>
           <span className="md:text-right">↑ Top</span>
         </div>
@@ -27,9 +27,11 @@ export function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="relative font-serif text-walnut text-[clamp(3rem,18vw,18rem)] leading-[0.85] font-light tracking-tight text-center"
+            className="relative font-serif text-walnut text-[clamp(2.5rem,13vw,13rem)] leading-[0.85] font-light tracking-tight text-center"
           >
-            Castle<em className="italic text-terracotta">.</em>
+            our<br />
+            <em className="italic">moving</em><br />
+            castle<span className="text-terracotta">.</span>
           </motion.div>
         </div>
 

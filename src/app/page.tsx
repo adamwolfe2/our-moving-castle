@@ -9,7 +9,6 @@ import { FeaturesBento } from "@/components/FeaturesBento";
 import { RoomSection } from "@/components/RoomSection";
 import { Gallery3D } from "@/components/Gallery3D";
 import { InspirationBoard } from "@/components/InspirationBoard";
-import { Newsletter } from "@/components/Newsletter";
 import { StorySection } from "@/components/StorySection";
 import { Footer } from "@/components/Footer";
 import { RoomStrip } from "@/components/RoomStrip";
@@ -33,7 +32,6 @@ export default function Home() {
         ))}
         <Gallery3D />
         <InspirationBoard />
-        <Newsletter />
         <StorySection />
         <Footer />
       </main>
