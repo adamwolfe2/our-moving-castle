@@ -129,7 +129,7 @@ export const EXTERIOR = {
   index: "00",
   name: "House.",
   real: "",
-  dream: "/dream/dream-06-cozy_hillside_retreat_at_dusk.png",
+  dream: "/inspo/inspo-42-modern_hillside_home_with_expansive_glass_facade.png",
   inspo: inspoMatching([
     "hillside",
     "facade",

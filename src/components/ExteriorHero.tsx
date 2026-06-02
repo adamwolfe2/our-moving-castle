@@ -1,8 +1,7 @@
 "use client";
 
-// Full-bleed photo of the front of the house. Clean architectural hero.
-// Cetfar / Mariven pattern: parallax zoom, warm gradient bleed, big serif title.
-// No shaders. No WebGL distortion. Just the photo.
+// Full-bleed front-of-house hero. Cetfar / Mariven pattern:
+// title centered over the photo, white, big serif. Subtle scroll parallax.
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
@@ -16,10 +15,9 @@ export function ExteriorHero() {
     offset: ["start start", "end start"],
   });
 
-  // Photo subtly zooms + drifts down as you scroll past
   const photoY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
   const photoScale = useTransform(scrollYProgress, [0, 1], [1.05, 1.18]);
-  const titleY = useTransform(scrollYProgress, [0, 1], ["0%", "-40%"]);
+  const titleY = useTransform(scrollYProgress, [0, 1], ["0%", "-30%"]);
   const titleOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
   return (
@@ -41,26 +39,31 @@ export function ExteriorHero() {
             priority
             className="object-cover"
           />
-          {/* Soft warm gradient at the bottom for the title to sit on */}
+          {/* Soft warm gradient — darker at the bottom-center for the title to sit on */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "linear-gradient(180deg, rgba(43, 36, 28, 0.0) 0%, rgba(43, 36, 28, 0.0) 45%, rgba(43, 36, 28, 0.55) 100%)",
+                "linear-gradient(180deg, rgba(43, 36, 28, 0.10) 0%, rgba(43, 36, 28, 0.0) 35%, rgba(43, 36, 28, 0.45) 100%)",
             }}
           />
         </motion.div>
 
-        {/* Big editorial title bottom-left */}
+        {/* Big editorial title — centered, white, bottom-middle */}
         <motion.div
           style={{ y: titleY, opacity: titleOpacity }}
-          className="absolute inset-0 flex flex-col justify-end items-start px-6 md:px-16 pb-16 md:pb-24 pointer-events-none"
+          className="absolute inset-0 flex flex-col items-center justify-end pb-20 md:pb-28 px-6 pointer-events-none text-center"
         >
-          <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-cream/75 mb-3 md:mb-4">
-            00
+          <div className="font-mono text-[10px] tracking-[0.35em] uppercase text-cream/80 mb-4 md:mb-6">
+            A Living Mood Board
           </div>
-          <h2 className="font-serif text-cream text-[clamp(4rem,14vw,12rem)] leading-[0.88] font-light tracking-tight">
-            House<em className="italic text-terracotta">.</em>
+          <h2
+            className="font-serif text-cream font-light tracking-tight leading-[0.92] text-[clamp(3rem,11vw,9rem)]"
+            style={{ textShadow: "0 4px 30px rgba(0,0,0,0.45)" }}
+          >
+            our<br />
+            <em className="italic">moving</em><br />
+            castle<span className="text-terracotta">.</span>
           </h2>
         </motion.div>
       </div>
