@@ -26,10 +26,10 @@ export function RoomSection({ room, index }: Props) {
     <section
       ref={ref}
       id={room.id}
-      className="relative w-full py-32 md:py-48 overflow-hidden"
+      className="relative w-full py-20 md:py-48 overflow-hidden"
       style={{ backgroundColor: room.palette.bg, color: room.palette.ink }}
     >
-      <div className="max-w-[1700px] mx-auto px-6 md:px-12">
+      <div className="max-w-[1700px] mx-auto px-4 md:px-12">
         {/* Header row */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -53,7 +53,7 @@ export function RoomSection({ room, index }: Props) {
           whileInView={{ opacity: 1, y: 0, letterSpacing: "-0.02em" }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          className="font-serif text-[clamp(4.5rem,14vw,14rem)] leading-[0.88] font-light tracking-tight mb-12 md:mb-20"
+          className="font-serif text-[clamp(3.5rem,11vw,12rem)] leading-[0.88] font-light tracking-tight mb-8 md:mb-16"
         >
           {room.name.replace(".", "")}
           <em className="italic" style={{ color: room.palette.accent }}>
@@ -61,8 +61,8 @@ export function RoomSection({ room, index }: Props) {
           </em>
         </motion.h2>
 
-        {/* SLIDER: big center image + side peeks + dots */}
-        <div className="mb-20 md:mb-28">
+        {/* SLIDER */}
+        <div className="mb-16 md:mb-28">
           <RoomSlider images={pool} kind="inspiration" label={room.name} />
         </div>
 

@@ -1,12 +1,14 @@
 "use client";
 
-// Custom cursor: small ring that scales on hover targets, lags slightly behind.
-// Mariven + Hello-Archi both use a custom cursor. Adds craft.
+// Custom dot cursor. Hidden on touch / mobile (which also keeps the native
+// finger cursor available).
 
 import { useEffect, useState } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
+import { useIsMobile } from "@/lib/useIsMobile";
 
 export function Cursor() {
+  const isMobile = useIsMobile();
   const x = useMotionValue(-100);
   const y = useMotionValue(-100);
   const sx = useSpring(x, { stiffness: 600, damping: 40, mass: 0.5 });
@@ -14,6 +16,7 @@ export function Cursor() {
   const [hovering, setHovering] = useState(false);
 
   useEffect(() => {
+    if (isMobile) return;
     const move = (e: MouseEvent) => {
       x.set(e.clientX);
       y.set(e.clientY);
@@ -30,7 +33,9 @@ export function Cursor() {
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseover", over);
     };
-  }, [x, y]);
+  }, [x, y, isMobile]);
+
+  if (isMobile) return null;
 
   return (
     <motion.div

@@ -9,6 +9,7 @@ import { useTexture, PerspectiveCamera } from "@react-three/drei";
 import { useEffect, useMemo, useRef, Suspense } from "react";
 import * as THREE from "three";
 import { ALL_DREAM, ALL_INSPO } from "@/lib/manifest";
+import { useIsMobile } from "@/lib/useIsMobile";
 
 function buildHelix(count: number) {
   const positions: [number, number, number][] = [];
@@ -112,7 +113,12 @@ function CameraRig({ totalHeight }: { totalHeight: number }) {
 }
 
 export function Gallery3D() {
-  const photos = useMemo(() => [...ALL_DREAM, ...ALL_INSPO], []);
+  const isMobile = useIsMobile();
+  // Cap photo count on mobile — iPhone Safari WebGL chokes past ~50 textures.
+  const photos = useMemo(() => {
+    const all = [...ALL_DREAM, ...ALL_INSPO];
+    return isMobile ? all.slice(0, 36) : all;
+  }, [isMobile]);
   const layout = useMemo(() => buildHelix(photos.length), [photos.length]);
   const totalHeight = photos.length * 1.85;
 
@@ -140,8 +146,11 @@ export function Gallery3D() {
         </div>
 
         <Canvas
-          gl={{ antialias: true, powerPreference: "high-performance" }}
-          dpr={[1, 2]}
+          gl={{
+            antialias: !isMobile,
+            powerPreference: isMobile ? "low-power" : "high-performance",
+          }}
+          dpr={isMobile ? [1, 1.5] : [1, 2]}
         >
           <CameraRig totalHeight={totalHeight} />
           <fog attach="fog" args={["#F5F1EB", 8, 28]} />

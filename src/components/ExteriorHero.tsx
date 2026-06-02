@@ -1,16 +1,13 @@
 "use client";
 
-// Section 1: full-bleed WebGL hero. Three.js shader plane with cursor displacement.
-// Single word + period only. No descriptors. No taglines.
+// Full-bleed photo of the front of the house. Clean architectural hero.
+// Cetfar / Mariven pattern: parallax zoom, warm gradient bleed, big serif title.
+// No shaders. No WebGL distortion. Just the photo.
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import dynamic from "next/dynamic";
-
-const WebGLHero = dynamic(
-  () => import("./WebGLHero").then((m) => m.WebGLHero),
-  { ssr: false }
-);
+import Image from "next/image";
+import { EXTERIOR } from "@/lib/rooms";
 
 export function ExteriorHero() {
   const ref = useRef<HTMLElement>(null);
@@ -18,36 +15,55 @@ export function ExteriorHero() {
     target: ref,
     offset: ["start start", "end start"],
   });
-  const titleY = useTransform(scrollYProgress, [0, 1], ["0%", "-60%"]);
-  const titleOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-  const overlay = useTransform(scrollYProgress, [0, 1], [0.18, 0.55]);
+
+  // Photo subtly zooms + drifts down as you scroll past
+  const photoY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
+  const photoScale = useTransform(scrollYProgress, [0, 1], [1.05, 1.18]);
+  const titleY = useTransform(scrollYProgress, [0, 1], ["0%", "-40%"]);
+  const titleOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
   return (
     <section
       ref={ref}
       id="exterior"
-      className="relative h-[140vh] w-full bg-cream overflow-hidden"
+      className="relative h-[130vh] w-full bg-cream overflow-hidden"
     >
-      <div className="sticky top-0 h-screen w-full">
-        <WebGLHero />
+      <div className="sticky top-0 h-screen w-full overflow-hidden">
+        <motion.div
+          style={{ y: photoY, scale: photoScale }}
+          className="absolute inset-0"
+        >
+          <Image
+            src={EXTERIOR.dream}
+            alt="The front of the house"
+            fill
+            sizes="100vw"
+            priority
+            className="object-cover"
+          />
+          {/* Soft warm gradient at the bottom for the title to sit on */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(43, 36, 28, 0.0) 0%, rgba(43, 36, 28, 0.0) 45%, rgba(43, 36, 28, 0.55) 100%)",
+            }}
+          />
+        </motion.div>
+
+        {/* Big editorial title bottom-left */}
+        <motion.div
+          style={{ y: titleY, opacity: titleOpacity }}
+          className="absolute inset-0 flex flex-col justify-end items-start px-6 md:px-16 pb-16 md:pb-24 pointer-events-none"
+        >
+          <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-cream/75 mb-3 md:mb-4">
+            00
+          </div>
+          <h2 className="font-serif text-cream text-[clamp(4rem,14vw,12rem)] leading-[0.88] font-light tracking-tight">
+            House<em className="italic text-terracotta">.</em>
+          </h2>
+        </motion.div>
       </div>
-
-      <motion.div
-        style={{ opacity: overlay }}
-        className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-cream/80 pointer-events-none"
-      />
-
-      <motion.div
-        style={{ y: titleY, opacity: titleOpacity }}
-        className="absolute inset-0 flex flex-col justify-end items-start px-8 md:px-16 pb-32 pointer-events-none"
-      >
-        <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-cream/70 mb-4">
-          00
-        </div>
-        <h2 className="font-serif text-cream text-[clamp(3rem,11vw,11rem)] leading-[0.9] font-light tracking-tight">
-          House<em className="italic text-terracotta">.</em>
-        </h2>
-      </motion.div>
     </section>
   );
 }

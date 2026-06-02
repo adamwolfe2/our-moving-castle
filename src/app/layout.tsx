@@ -1,7 +1,6 @@
-// Root layout. Loads fonts (Fraunces serif + Geist sans + Geist Mono),
-// sets metadata, applies global cream background + custom cursor.
+// Root layout. Fonts + global styles + mobile-aware viewport.
 
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Fraunces } from "next/font/google";
 import "./globals.css";
 
@@ -22,9 +21,22 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Our Moving Castle — A Living Portrait",
+  title: "Our Moving Castle",
   description:
-    "An interactive scroll-driven tour of our home — real and imagined.",
+    "An interactive scroll-driven mood board for our home.",
+  openGraph: {
+    title: "Our Moving Castle",
+    description: "Interactive home mood board.",
+    type: "website",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#F5F1EB",
+  viewportFit: "cover", // iPhone notch / dynamic island safe areas
 };
 
 export default function RootLayout({

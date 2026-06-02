@@ -1,23 +1,24 @@
 "use client";
 
-// Cetfar-style 3-card slider: center image at full size, prev/next peeking
-// from the sides. Auto-advances. Click side previews to step. Dot indicators
-// below. Swipe / arrow-key navigation. Cursor-tilt 3D on the center card.
+// Cetfar-style 3-card slider with mobile swipe support.
+// Desktop: side peeks + 3D cursor tilt. Mobile: full-width center + swipe + bigger taps.
 
 import {
   motion,
   AnimatePresence,
   useMotionValue,
   useSpring,
+  PanInfo,
 } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import clsx from "clsx";
+import { useIsMobile } from "@/lib/useIsMobile";
 
 type Props = {
   images: string[];
   kind: "real" | "inspiration";
-  label: string; // e.g., "Dining."
+  label: string;
   autoplayMs?: number;
 };
 
@@ -25,23 +26,25 @@ export function RoomSlider({
   images,
   kind,
   label,
-  autoplayMs = 6000,
+  autoplayMs = 6500,
 }: Props) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   const count = images.length;
   const prev = (index - 1 + count) % count;
   const next = (index + 1) % count;
 
-  // 3D cursor tilt on the active center card
+  // 3D cursor tilt — desktop only
   const rx = useMotionValue(0);
   const ry = useMotionValue(0);
   const rxs = useSpring(rx, { stiffness: 120, damping: 18 });
   const rys = useSpring(ry, { stiffness: 120, damping: 18 });
 
   useEffect(() => {
+    if (isMobile) return;
     const el = containerRef.current;
     if (!el) return;
     const onMove = (e: MouseEvent) => {
@@ -61,7 +64,7 @@ export function RoomSlider({
       el.removeEventListener("mousemove", onMove);
       el.removeEventListener("mouseleave", onLeave);
     };
-  }, [rx, ry]);
+  }, [rx, ry, isMobile]);
 
   // Autoplay
   useEffect(() => {
@@ -72,7 +75,7 @@ export function RoomSlider({
     return () => clearInterval(t);
   }, [count, paused, autoplayMs]);
 
-  // Keyboard navigation
+  // Keyboard arrows
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!containerRef.current) return;
@@ -86,8 +89,15 @@ export function RoomSlider({
   }, [count]);
 
   if (count === 0) return null;
-
   const accent = kind === "real" ? "#C26B4A" : "#C8A96E";
+
+  function onDragEnd(_e: unknown, info: PanInfo) {
+    const threshold = 60;
+    const v = info.velocity.x;
+    const o = info.offset.x;
+    if (o < -threshold || v < -400) setIndex(next);
+    else if (o > threshold || v > 400) setIndex(prev);
+  }
 
   return (
     <div
@@ -97,17 +107,17 @@ export function RoomSlider({
       onMouseLeave={() => setPaused(false)}
     >
       {/* Stage */}
-      <div className="relative w-full h-[clamp(420px,68vh,820px)] flex items-center justify-center [perspective:1400px]">
-        {/* Previous (left peek) */}
-        {count > 1 && (
+      <div className="relative w-full h-[clamp(520px,78vh,820px)] md:h-[clamp(420px,68vh,820px)] flex items-center justify-center [perspective:1400px]">
+        {/* Previous peek — desktop only */}
+        {count > 1 && !isMobile && (
           <button
-            key={`prev-${prev}`}
             onClick={() => setIndex(prev)}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 hidden md:block group"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 hidden md:block"
             style={{ width: "16%" }}
-            aria-label="Previous"
+            aria-label="Previous slide"
           >
             <motion.div
+              key={`prev-${prev}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6 }}
@@ -128,14 +138,18 @@ export function RoomSlider({
           </button>
         )}
 
-        {/* Center (active) */}
+        {/* Center (active) — swipeable on mobile */}
         <motion.div
           style={{
-            rotateX: rxs,
-            rotateY: rys,
+            rotateX: isMobile ? 0 : rxs,
+            rotateY: isMobile ? 0 : rys,
             transformStyle: "preserve-3d",
           }}
-          className="relative w-[78%] md:w-[68%] aspect-[16/10] z-20"
+          drag={isMobile && count > 1 ? "x" : false}
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.2}
+          onDragEnd={onDragEnd}
+          className="relative w-[96%] aspect-[3/4] md:w-[72%] md:aspect-[16/10] z-20 touch-pan-y"
         >
           <AnimatePresence mode="sync">
             <motion.div
@@ -144,19 +158,20 @@ export function RoomSlider({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute inset-0 rounded-[26px] overflow-hidden shadow-[0_40px_80px_-30px_rgba(43,36,28,0.35)]"
+              className="absolute inset-0 rounded-[22px] md:rounded-[26px] overflow-hidden shadow-[0_30px_60px_-25px_rgba(43,36,28,0.4)]"
             >
               <Image
                 src={images[index]}
                 alt={label}
                 fill
-                sizes="(max-width:768px) 90vw, 70vw"
+                sizes="(max-width:768px) 95vw, 70vw"
                 priority={index === 0}
-                className="object-cover"
+                className="object-cover select-none"
+                draggable={false}
               />
 
-              {/* Kind chip top-left */}
-              <div className="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cream/90 backdrop-blur-md text-walnut font-mono text-[10px] tracking-[0.22em] uppercase">
+              {/* Inspiration chip top-left */}
+              <div className="absolute top-3 left-3 md:top-4 md:left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cream/90 backdrop-blur-md text-walnut font-mono text-[10px] tracking-[0.22em] uppercase">
                 <span
                   className="w-1.5 h-1.5 rounded-full"
                   style={{ background: accent }}
@@ -165,28 +180,28 @@ export function RoomSlider({
               </div>
 
               {/* Room label bottom-right */}
-              <div className="absolute bottom-4 right-4 z-10 font-mono text-[10px] tracking-[0.22em] uppercase text-cream/85 bg-walnut/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
+              <div className="absolute bottom-3 right-3 md:bottom-4 md:right-4 z-10 font-mono text-[10px] tracking-[0.22em] uppercase text-cream/85 bg-walnut/40 backdrop-blur-sm px-2.5 py-1 md:px-3 md:py-1.5 rounded-full">
                 {label}
               </div>
 
               {/* Slide counter bottom-left */}
-              <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] tracking-[0.22em] uppercase text-cream/85 bg-walnut/40 backdrop-blur-sm px-3 py-1.5 rounded-full tabular-nums">
+              <div className="absolute bottom-3 left-3 md:bottom-4 md:left-4 z-10 font-mono text-[10px] tracking-[0.22em] uppercase text-cream/85 bg-walnut/40 backdrop-blur-sm px-2.5 py-1 md:px-3 md:py-1.5 rounded-full tabular-nums">
                 {String(index + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
               </div>
             </motion.div>
           </AnimatePresence>
         </motion.div>
 
-        {/* Next (right peek) */}
-        {count > 1 && (
+        {/* Next peek — desktop only */}
+        {count > 1 && !isMobile && (
           <button
-            key={`next-${next}`}
             onClick={() => setIndex(next)}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 hidden md:block group"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 hidden md:block"
             style={{ width: "16%" }}
-            aria-label="Next"
+            aria-label="Next slide"
           >
             <motion.div
+              key={`next-${next}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6 }}
@@ -208,41 +223,49 @@ export function RoomSlider({
         )}
       </div>
 
-      {/* Dot indicators */}
+      {/* Big tap targets: prev / next arrows on mobile (44px tap zones) */}
+      {count > 1 && isMobile && (
+        <div className="mt-4 flex items-center justify-center gap-6">
+          <button
+            onClick={() => setIndex(prev)}
+            aria-label="Previous"
+            className="w-11 h-11 rounded-full bg-walnut text-cream flex items-center justify-center active:scale-95 transition-transform"
+          >
+            ←
+          </button>
+          <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-walnut/55">
+            swipe
+          </span>
+          <button
+            onClick={() => setIndex(next)}
+            aria-label="Next"
+            className="w-11 h-11 rounded-full bg-walnut text-cream flex items-center justify-center active:scale-95 transition-transform"
+          >
+            →
+          </button>
+        </div>
+      )}
+
+      {/* Dot indicators — tap zone wider than dot for mobile */}
       {count > 1 && (
-        <div className="mt-8 flex items-center justify-center gap-2">
+        <div className="mt-6 md:mt-8 flex items-center justify-center gap-1 flex-wrap max-w-md mx-auto">
           {images.map((_, i) => (
             <button
               key={i}
               onClick={() => setIndex(i)}
-              aria-label={`Go to slide ${i + 1}`}
-              className={clsx(
-                "h-1.5 rounded-full transition-all duration-500",
-                i === index
-                  ? "w-8 bg-walnut"
-                  : "w-1.5 bg-walnut/25 hover:bg-walnut/45"
-              )}
-            />
+              aria-label={`Slide ${i + 1}`}
+              className="h-11 w-6 flex items-center justify-center group"
+            >
+              <span
+                className={clsx(
+                  "block h-1.5 rounded-full transition-all duration-500",
+                  i === index
+                    ? "w-7 bg-walnut"
+                    : "w-1.5 bg-walnut/25 group-hover:bg-walnut/45"
+                )}
+              />
+            </button>
           ))}
-        </div>
-      )}
-
-      {/* Mobile prev/next arrows */}
-      {count > 1 && (
-        <div className="mt-5 flex md:hidden items-center justify-center gap-6 font-mono text-[10px] tracking-[0.25em] uppercase text-walnut/55">
-          <button
-            onClick={() => setIndex(prev)}
-            className="hover:text-terracotta transition-colors"
-          >
-            ← Prev
-          </button>
-          <span className="opacity-30">·</span>
-          <button
-            onClick={() => setIndex(next)}
-            className="hover:text-terracotta transition-colors"
-          >
-            Next →
-          </button>
         </div>
       )}
     </div>
