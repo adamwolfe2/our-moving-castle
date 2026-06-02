@@ -223,29 +223,6 @@ export function RoomSlider({
         )}
       </div>
 
-      {/* Big tap targets: prev / next arrows on mobile (44px tap zones) */}
-      {count > 1 && isMobile && (
-        <div className="mt-4 flex items-center justify-center gap-6">
-          <button
-            onClick={() => setIndex(prev)}
-            aria-label="Previous"
-            className="w-11 h-11 rounded-full bg-walnut text-cream flex items-center justify-center active:scale-95 transition-transform"
-          >
-            ←
-          </button>
-          <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-walnut/55">
-            swipe
-          </span>
-          <button
-            onClick={() => setIndex(next)}
-            aria-label="Next"
-            className="w-11 h-11 rounded-full bg-walnut text-cream flex items-center justify-center active:scale-95 transition-transform"
-          >
-            →
-          </button>
-        </div>
-      )}
-
       {/* Dot indicators — tap zone wider than dot for mobile */}
       {count > 1 && (
         <div className="mt-6 md:mt-8 flex items-center justify-center gap-1 flex-wrap max-w-md mx-auto">
