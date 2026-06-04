@@ -1,8 +1,7 @@
-// Scroll canvas: Entry → House (WebGL + hotspots) → Plan (room bento) → 7 Rooms (real+inspo) → Tour (3D helix) → Reference → Stay → Home → Footer.
+// Scroll canvas: House (hero) → Plan (room bento) → 7 Rooms (real+inspo) → Tour (3D helix) → Reference → Stay → Home → Footer.
 
 import { TopBar } from "@/components/TopBar";
 import { SmoothScroll } from "@/components/SmoothScroll";
-import { EntryPortal } from "@/components/EntryPortal";
 import { ExteriorHero } from "@/components/ExteriorHero";
 import { TourOverlay } from "@/components/TourOverlay";
 import { FeaturesBento } from "@/components/FeaturesBento";
@@ -24,7 +23,6 @@ export default function Home() {
       <RoomStrip />
       <TourOverlay />
       <main className="bg-cream">
-        <EntryPortal />
         <ExteriorHero />
         <FeaturesBento />
         {ROOMS.map((room, i) => (
