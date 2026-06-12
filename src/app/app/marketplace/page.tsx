@@ -73,9 +73,14 @@ export default function MarketplacePage() {
     } catch {
       /* fall back to bare link */
     }
+    const junkTitle = /^(error|facebook|log ?in.*|.*log ?in to facebook.*)$/i;
+    const cleanTitle =
+      preview.title && !junkTitle.test(preview.title.trim())
+        ? preview.title.slice(0, 200)
+        : null;
     try {
       await create({
-        item: preview.title?.slice(0, 200) || `Marketplace find — ${hostOf(link)}`,
+        item: cleanTitle || `Marketplace find — ${hostOf(link)}`,
         url: link,
         imageUrl: preview.image || null,
         targetPrice: preview.price ?? null,
