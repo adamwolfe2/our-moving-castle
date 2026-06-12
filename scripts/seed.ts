@@ -106,6 +106,41 @@ const TASKS: T[] = [
   t("Patch nail holes + touch-up paint (old place)", { category: "cleaning", dueDate: "2026-06-20", area: "Old — 16533 NE Halsey" }),
   t("Carpet clean / vacuum (old place, for deposit)", { category: "cleaning", dueDate: "2026-06-21", area: "Old — 16533 NE Halsey" }),
   t("Return old place keys + photo everything for deposit", { category: "admin", dueDate: "2026-06-21", area: "Old — 16533 NE Halsey" }),
+
+  // ---- Move Logistics & Lead-Time (Notion) ----
+  t("Confirm internet install window in writing", { category: "utilities", owner: "you", priority: "high", dueDate: "2026-06-13" }),
+  t("Set up hotspot / phone-plan backup for week one", { category: "utilities", owner: "you", priority: "high", dueDate: "2026-06-15", notes: "Do this regardless of fiber — you work from home." }),
+  t("Test work access once internet is live (AIMS, Cursive, LeaseStack, MA)", { category: "utilities", owner: "you", priority: "high", dueDate: "2026-06-18" }),
+  t("Confirm all utilities are in your name as of closing day", { category: "utilities", priority: "high", dueDate: "2026-06-17" }),
+  t("Get 2–3 mover quotes (short haul from 16533 NE Halsey)", { category: "move", priority: "high", dueDate: "2026-06-12" }),
+  t("Confirm mover date, arrival window, payment method", { category: "move", priority: "normal", dueDate: "2026-06-13" }),
+  t("Reserve elevator / parking at the apartment for move-out", { category: "move", priority: "normal", dueDate: "2026-06-16", area: "Old — 16533 NE Halsey" }),
+  t("Give notice / confirm move-out date with current landlord", { category: "admin", priority: "high", dueDate: "2026-06-12", area: "Old — 16533 NE Halsey" }),
+
+  // ---- Money & Closing Protection (Notion) — six figures can vanish here ----
+  t("Confirm owner's title insurance is in the closing (with Jenny)", { category: "closing", priority: "critical", dueDate: "2026-06-13", notes: "Cash buyer = nobody forces this. Your only protection vs liens or a bad deed." }),
+  t("Re-verify account + routing numbers by phone the day you wire", { category: "closing", priority: "critical", dueDate: "2026-06-16" }),
+  t("Keep written confirmation of the wire-verification call", { category: "closing", priority: "high", dueDate: "2026-06-16" }),
+  t("Verify all credited items are accounted for at walkthrough", { category: "closing", priority: "high", dueDate: "2026-06-16" }),
+  t("Test major systems at walkthrough (HVAC, water, electrical)", { category: "closing", priority: "high", dueDate: "2026-06-16" }),
+  t("Bring ID + required documents to closing", { category: "closing", priority: "high", dueDate: "2026-06-17" }),
+  t("Confirm funds cleared / wire received", { category: "closing", priority: "critical", dueDate: "2026-06-17" }),
+  t("Collect all keys, garage remotes, mailbox keys, and codes", { category: "closing", priority: "high", dueDate: "2026-06-17" }),
+  t("Photo + video every room and every defect", { category: "home", priority: "high", dueDate: "2026-06-17", notes: "Insurance baseline + cost-basis record." }),
+  t("Get a home warranty quote + decide", { category: "money", priority: "normal", dueDate: "2026-06-13", notes: "Cheap insurance given the deferred repairs you took the credit on." }),
+  t("Bundle home + auto with Bill Nelson; update auto garaging address", { category: "money", priority: "normal", dueDate: "2026-06-15", notes: "Usually drops both rates." }),
+
+  // ---- Address & Identity Changes (Notion) ----
+  t("Change address — banks", { category: "admin", dueDate: "2026-06-22" }),
+  t("Change address — Amex + other credit cards", { category: "admin", dueDate: "2026-06-22" }),
+  t("Change address — Mercury (business banking)", { category: "admin", dueDate: "2026-06-22" }),
+  t("Change address — LLCs / business registrations", { category: "admin", dueDate: "2026-06-24" }),
+  t("Oregon DMV / driver license address", { category: "admin", dueDate: "2026-06-24" }),
+  t("Update voter registration", { category: "admin", dueDate: "2026-06-24" }),
+  t("Employer payroll address (MA)", { category: "admin", owner: "you", dueDate: "2026-06-22" }),
+  t("Subscriptions + recurring deliveries address", { category: "admin", dueDate: "2026-06-25" }),
+  t("Amazon + online retailer default addresses", { category: "admin", dueDate: "2026-06-25" }),
+  t("Insurance, medical, and dental records address", { category: "admin", dueDate: "2026-06-25" }),
 ];
 
 const PAYMENTS = [
