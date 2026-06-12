@@ -10,6 +10,8 @@ import {
   contacts,
   shopping,
   dailyLog,
+  budgetLines,
+  marketplace,
   type NewTask,
 } from "../src/lib/db/schema";
 
@@ -179,34 +181,74 @@ const CONTACTS = [
   { name: "Multnomah County Tax", role: "Property tax", notes: "multco.us — due Nov 16, pay full for 3% discount" },
 ];
 
-const S = (item: string, area: string, estCost?: number) => ({ item, area, estCost: estCost ?? null, bought: false });
+const S = (item: string, area: string, estCost: number) => ({ item, area, estCost, bought: false });
 const SHOPPING = [
   // Buy this weekend — Safety & Day-1
-  S("Fire extinguishers", "Buy this weekend"), S("CO detectors + smoke batteries", "Buy this weekend"),
-  S("Flashlights / headlamps", "Buy this weekend"), S("First aid kit", "Buy this weekend"),
-  S("Work gloves, safety glasses, N95 masks", "Buy this weekend"), S("Utility knife", "Buy this weekend"),
-  S("Step ladder", "Buy this weekend"), S("Extension cords + surge protectors", "Buy this weekend"),
+  S("Fire extinguishers", "Buy this weekend", 40), S("CO detectors + smoke batteries", "Buy this weekend", 35),
+  S("Flashlights / headlamps", "Buy this weekend", 25), S("First aid kit", "Buy this weekend", 20),
+  S("Work gloves, safety glasses, N95 masks", "Buy this weekend", 30), S("Utility knife", "Buy this weekend", 10),
+  S("Step ladder", "Buy this weekend", 60), S("Extension cords + surge protectors", "Buy this weekend", 40),
   // Buy this weekend — Cleaning & Reset
-  S("Shop vac", "Buy this weekend"), S("Broom, dustpan, mop + bucket", "Buy this weekend"),
-  S("Paper towels, trash bags, contractor bags", "Buy this weekend"), S("Sponges / scrub brushes", "Buy this weekend"),
-  S("All-purpose + mold/mildew cleaner", "Buy this weekend"), S("Toilet brush, TP, hand & dish soap", "Buy this weekend"),
+  S("Shop vac", "Buy this weekend", 80), S("Broom, dustpan, mop + bucket", "Buy this weekend", 35),
+  S("Paper towels, trash bags, contractor bags", "Buy this weekend", 40), S("Sponges / scrub brushes", "Buy this weekend", 12),
+  S("All-purpose + mold/mildew cleaner", "Buy this weekend", 20), S("Toilet brush, TP, hand & dish soap", "Buy this weekend", 25),
   // Buy this weekend — This-house specifics
-  S("Dryer vent cleaning kit", "This-house specifics"), S("Furnace / air filters", "This-house specifics"),
-  S("Moisture meter", "This-house specifics"), S("Non-contact voltage tester + outlet tester", "This-house specifics"),
-  S("Pipe insulation sleeves (exposed galvanized)", "This-house specifics"), S("Weather stripping + door sweeps", "This-house specifics"),
-  S("Caulk (ext/int, silicone, fire-rated) + gun", "This-house specifics"), S("Spackle / drywall patch kit", "This-house specifics"),
+  S("Dryer vent cleaning kit", "This-house specifics", 25), S("Furnace / air filters", "This-house specifics", 30),
+  S("Moisture meter", "This-house specifics", 30), S("Non-contact voltage tester + outlet tester", "This-house specifics", 30),
+  S("Pipe insulation sleeves (exposed galvanized)", "This-house specifics", 25), S("Weather stripping + door sweeps", "This-house specifics", 35),
+  S("Caulk (ext/int, silicone, fire-rated) + gun", "This-house specifics", 45), S("Spackle / drywall patch kit", "This-house specifics", 20),
   // First 30 days
-  S("Exterior stain / sealer for cedar", "First 30 days"), S("Dehumidifier + DampRid + fans", "First 30 days"),
-  S("Replacement supply lines, hose clamps, plumber's tape", "First 30 days"), S("Drain snake + water pressure gauge", "First 30 days"),
-  S("Gutter cleaning tools + ladder stabilizer", "First 30 days"), S("Gravel / sand / fill dirt (grading)", "First 30 days"),
+  S("Exterior stain / sealer for cedar", "First 30 days", 120), S("Dehumidifier + DampRid + fans", "First 30 days", 200),
+  S("Replacement supply lines, hose clamps, plumber's tape", "First 30 days", 30), S("Drain snake + water pressure gauge", "First 30 days", 40),
+  S("Gutter cleaning tools + ladder stabilizer", "First 30 days", 60), S("Gravel / sand / fill dirt (grading)", "First 30 days", 80),
   // Tools to own
-  S("Tape measure, hammer, screwdriver set", "Tools to own"), S("Drill / driver + bits", "Tools to own"),
-  S("Stud finder, level, pliers set", "Tools to own"), S("Adjustable wrench, socket set, allen keys", "Tools to own"),
-  S("Channel locks", "Tools to own"), S("Tool bag / organizer", "Tools to own"),
+  S("Tape measure, hammer, screwdriver set", "Tools to own", 50), S("Drill / driver + bits", "Tools to own", 120),
+  S("Stud finder, level, pliers set", "Tools to own", 45), S("Adjustable wrench, socket set, allen keys", "Tools to own", 60),
+  S("Channel locks", "Tools to own", 20), S("Tool bag / organizer", "Tools to own", 35),
   // People forget
-  S("New toilet seats", "People forget"), S("Shower curtains + liners", "People forget"),
-  S("Door mats, garbage + recycling cans", "People forget"), S("Window coverings", "People forget"),
-  S("Light bulbs, batteries, command hooks", "People forget"), S("First-night box (bedding, toiletries, coffee)", "People forget"),
+  S("New toilet seats", "People forget", 50), S("Shower curtains + liners", "People forget", 35),
+  S("Door mats, garbage + recycling cans", "People forget", 60), S("Window coverings", "People forget", 150),
+  S("Light bulbs, batteries, command hooks", "People forget", 45), S("First-night box (bedding, toiletries, coffee)", "People forget", 80),
+];
+
+const BUDGET_LINES = [
+  { name: "Movers", planned: 1200 },
+  { name: "Packing supplies", planned: 150 },
+  { name: "Re-key / locks", planned: 150 },
+  { name: "Deep clean", planned: 250 },
+  { name: "Utility setup / deposits", planned: 300 },
+  { name: "Sewer repair (jet + spot)", planned: 3000 },
+  { name: "Siding & water intrusion (Tassie)", planned: 4000 },
+  { name: "Electrical panel fixes", planned: 800 },
+  { name: "Radon mitigation (if elevated)", planned: 2500 },
+  { name: "Foundation seal + regrade", planned: 1500 },
+  { name: "Home warranty", planned: 600 },
+  { name: "Home insurance (year 1)", planned: 3745 },
+  { name: "Home essentials / Home Depot", planned: 1500, source: "shopping", notes: "Auto-totals live from the Shopping list." },
+  { name: "Furniture & secondhand", planned: 3000, source: "marketplace", notes: "Auto-totals live from the Marketplace board." },
+  { name: "Contingency buffer", planned: 2000, notes: "Flexible — absorbs surprises. Adjust as real bills land." },
+];
+
+const iso = (item: string, price: number) =>
+  `ISO: ${item} in good condition, up to $${price}. NE Portland / Cadet area — can pick up, cash ready. Moving in mid-June.`;
+const M = (item: string, targetPrice: number) => ({
+  item,
+  targetPrice,
+  status: "wishlist",
+  location: "Portland, OR (NE / Cadet)",
+  isoPost: iso(item, targetPrice),
+});
+const MARKETPLACE = [
+  M("Couch / sectional sofa", 400),
+  M("Dining table + chairs", 250),
+  M("Bed frame (queen)", 200),
+  M("Dresser", 120),
+  M("Nightstands (pair)", 70),
+  M("Bookshelf", 60),
+  M("Standing / WFH desk", 150),
+  M("Area rug", 80),
+  M("Patio / outdoor furniture set", 200),
+  M("Lawn mower", 150),
 ];
 
 const DAILY = [
@@ -226,6 +268,8 @@ async function main() {
   await db.delete(payments);
   await db.delete(contacts);
   await db.delete(shopping);
+  await db.delete(budgetLines);
+  await db.delete(marketplace);
   await db.delete(dailyLog);
 
   console.log(`Inserting ${TASKS.length} tasks…`);
@@ -236,6 +280,10 @@ async function main() {
   await db.insert(contacts).values(CONTACTS as never);
   console.log(`Inserting ${SHOPPING.length} shopping items…`);
   await db.insert(shopping).values(SHOPPING as never);
+  console.log(`Inserting ${BUDGET_LINES.length} budget lines…`);
+  await db.insert(budgetLines).values(BUDGET_LINES.map((x, i) => ({ ...x, sortOrder: i })) as never);
+  console.log(`Inserting ${MARKETPLACE.length} marketplace items…`);
+  await db.insert(marketplace).values(MARKETPLACE.map((x, i) => ({ ...x, sortOrder: i })) as never);
   console.log(`Inserting ${DAILY.length} daily log…`);
   await db.insert(dailyLog).values(DAILY as never);
 

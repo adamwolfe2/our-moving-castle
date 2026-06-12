@@ -8,6 +8,8 @@ const PROTECTED_API = [
   "/api/payments",
   "/api/contacts",
   "/api/shopping",
+  "/api/budget",
+  "/api/marketplace",
   "/api/daily-log",
   "/api/export",
 ];

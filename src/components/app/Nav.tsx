@@ -8,8 +8,10 @@ import {
   LogOut,
   NotebookPen,
   Phone,
+  PiggyBank,
   ShoppingCart,
   Sparkles,
+  Store,
   Wallet,
   Flame,
 } from "lucide-react";
@@ -22,7 +24,9 @@ const NAV = [
   { href: "/app/tasks", label: "Tasks", icon: ListChecks },
   { href: "/app/cleaning", label: "Cleaning", icon: Sparkles },
   { href: "/app/shopping", label: "Shopping", icon: ShoppingCart },
+  { href: "/app/marketplace", label: "Marketplace", icon: Store },
   { href: "/app/money", label: "Money", icon: Wallet },
+  { href: "/app/budget", label: "Budget", icon: PiggyBank },
   { href: "/app/contacts", label: "Contacts", icon: Phone },
   { href: "/app/brief", label: "Daily Brief", icon: NotebookPen },
 ];

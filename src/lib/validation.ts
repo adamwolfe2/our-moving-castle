@@ -56,6 +56,31 @@ export const shoppingCreate = z.object({
 });
 export const shoppingUpdate = shoppingCreate.partial();
 
+export const budgetCreate = z.object({
+  name: z.string().trim().min(1).max(200),
+  planned: z.number().int().default(0),
+  actual: z.number().int().default(0),
+  source: z.enum(["manual", "shopping", "marketplace"]).default("manual"),
+  notes: nullableStr,
+  sortOrder: z.number().int().optional(),
+});
+export const budgetUpdate = budgetCreate.partial();
+
+export const marketplaceCreate = z.object({
+  item: z.string().trim().min(1).max(300),
+  targetPrice: z.number().int().nonnegative().optional().nullable(),
+  status: z
+    .enum(["wishlist", "posted", "found", "contacted", "bought"])
+    .default("wishlist"),
+  url: nullableStr,
+  location: nullableStr,
+  seller: nullableStr,
+  isoPost: nullableStr,
+  notes: nullableStr,
+  sortOrder: z.number().int().optional(),
+});
+export const marketplaceUpdate = marketplaceCreate.partial();
+
 export const dailyLogCreate = z.object({
   logDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   mood: nullableStr,

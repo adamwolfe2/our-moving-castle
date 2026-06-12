@@ -88,6 +88,33 @@ export const dailyLog = pgTable("daily_log", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const budgetLines = pgTable("budget_lines", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  planned: integer("planned").notNull().default(0),
+  actual: integer("actual").notNull().default(0),
+  source: text("source").notNull().default("manual"), // manual | shopping | marketplace
+  notes: text("notes"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const marketplace = pgTable("marketplace", {
+  id: serial("id").primaryKey(),
+  item: text("item").notNull(),
+  targetPrice: integer("target_price"),
+  status: text("status").notNull().default("wishlist"),
+  url: text("url"),
+  location: text("location"),
+  seller: text("seller"),
+  isoPost: text("iso_post"),
+  notes: text("notes"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 export type Task = typeof tasks.$inferSelect;
 export type NewTask = typeof tasks.$inferInsert;
 export type Payment = typeof payments.$inferSelect;

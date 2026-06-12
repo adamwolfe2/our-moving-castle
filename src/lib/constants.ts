@@ -81,6 +81,45 @@ export interface ShoppingItem {
   updatedAt: string;
 }
 
+export const BUDGET_SOURCES = ["manual", "shopping", "marketplace"] as const;
+export type BudgetSource = (typeof BUDGET_SOURCES)[number];
+
+export interface BudgetLine {
+  id: number;
+  name: string;
+  planned: number;
+  actual: number;
+  source: BudgetSource;
+  notes: string | null;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const MARKETPLACE_STATUSES = [
+  "wishlist",
+  "posted",
+  "found",
+  "contacted",
+  "bought",
+] as const;
+export type MarketplaceStatus = (typeof MARKETPLACE_STATUSES)[number];
+
+export interface MarketplaceItem {
+  id: number;
+  item: string;
+  targetPrice: number | null;
+  status: MarketplaceStatus;
+  url: string | null;
+  location: string | null;
+  seller: string | null;
+  isoPost: string | null;
+  notes: string | null;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DailyLogEntry {
   id: number;
   logDate: string;
