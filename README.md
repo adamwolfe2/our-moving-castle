@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Our Moving Castle
 
-## Getting Started
+Two things in one Next.js app:
 
-First, run the development server:
+1. **Public site** (`/`) — the scroll-driven home mood board (existing).
+2. **Move-In CRM** (`/app`) — a private, password-protected command center for the
+   move to 3336 NE Cadet Ave. Live calendar, task/checklist system, cleaning lists,
+   shopping, money tracker, contacts, and a daily brief. Full CRUD, real data.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Stack
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Next.js 16 · React 19 · Tailwind v4 · Drizzle ORM · Neon Postgres · jose (auth) · lucide-react.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## The CRM (`/app`)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Auth** — one shared password (`calcifer`). Signed httpOnly cookie, 30 days.
+  Middleware guards `/app/*` and the data APIs. The marketing site stays public.
+- **Pages** — Dashboard (countdown + money + progress + critical path), Calendar
+  (live, by due date), Tasks (all categories, filterable), Cleaning (old + new place),
+  Shopping (essentials), Money (payments + monthly budget + House Holding), Contacts,
+  Daily Brief (live snapshot + "Copy for Claude" + progress log).
+- **Data** — 5 tables: `tasks`, `payments`, `contacts`, `shopping`, `daily_log`.
 
-## Learn More
+## First-time setup (one-time, ~2 min)
 
-To learn more about Next.js, take a look at the following resources:
+1. **Create the database.** Vercel → `ourmovingcastle` → Storage → Create Database →
+   **Neon (Postgres)**. This auto-adds `DATABASE_URL` to the project.
+   _(Or make a free DB at neon.tech and copy its connection string.)_
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. **Pull env + set the password locally.**
+   ```bash
+   vercel env pull .env.local
+   # add to .env.local:
+   #   APP_PASSWORD=calcifer
+   #   SESSION_SECRET=<long random string>
+   ```
+   Also add `APP_PASSWORD` and `SESSION_SECRET` in Vercel → Settings → Environment Variables.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. **Create tables + load the real Cadet data.**
+   ```bash
+   pnpm db:push     # create the schema in Neon
+   pnpm db:seed     # load tasks, payments, contacts, shopping, etc.
+   ```
 
-## Deploy on Vercel
+4. **Run it.**
+   ```bash
+   pnpm dev         # http://localhost:3000/app  (password: calcifer)
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Daily use
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Work the **Dashboard** and **Calendar**; check things off — they sync across both phones.
+- Each morning, open **Daily Brief**, hit **Copy for Claude**, paste into a chat to
+  re-plan the day. Log the day's wins/blockers at the bottom.
+- `GET /api/export` returns the full JSON snapshot (auth required).
+
+## Scripts
+
+| Command | What |
+|---|---|
+| `pnpm dev` | Local dev |
+| `pnpm build` | Production build |
+| `pnpm db:push` | Push Drizzle schema to Neon |
+| `pnpm db:seed` | Seed/reseed real Cadet data (wipes + reloads the 5 tables) |
+| `pnpm db:studio` | Drizzle Studio (browse data) |
