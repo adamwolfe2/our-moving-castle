@@ -116,6 +116,19 @@ export const marketplace = pgTable("marketplace", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const documents = pgTable("documents", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  category: text("category").notNull().default("other"),
+  url: text("url").notNull(),
+  pathname: text("pathname"),
+  size: integer("size"),
+  contentType: text("content_type"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 export type Task = typeof tasks.$inferSelect;
 export type NewTask = typeof tasks.$inferInsert;
 export type Payment = typeof payments.$inferSelect;

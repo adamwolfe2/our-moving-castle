@@ -6,9 +6,11 @@ export const MOVE = {
   city: "Portland, OR",
   moveInDate: "2026-06-17", // Wednesday — close + possession + keys, 5 PM
   closeTime: "5:00 PM",
-  listPrice: 775000,
+  listPrice: 775000, // contract price before the inspection reduction
+  addendumPrice: 748730, // $775,000 − $26,270 inspection credit (SkySlope addendum, Jun 11)
+  inspectionCredit: 26270, // price reduction to offset inspection findings
   balanceAtClosing: 760000,
-  paidToDate: 15900, // earnest $15,000 + inspection $900
+  paidToDate: 16375, // earnest $15,000 + APEX inspection $900 + siding $350 + oil-tank $125
   outOfPocketAhead: 4900,
   trueMonthlyCost: 2516,
   houseHoldingMonthly: 1400, // auto-transfer for tax + insurance accruals

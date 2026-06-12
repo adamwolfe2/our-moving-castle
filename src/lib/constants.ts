@@ -121,6 +121,30 @@ export interface MarketplaceItem {
   updatedAt: string;
 }
 
+export const DOC_CATEGORIES = [
+  "inspection",
+  "closing",
+  "insurance",
+  "utilities",
+  "estimates",
+  "receipts",
+  "other",
+] as const;
+export type DocCategory = (typeof DOC_CATEGORIES)[number];
+
+export interface DocumentItem {
+  id: number;
+  name: string;
+  category: DocCategory;
+  url: string;
+  pathname: string | null;
+  size: number | null;
+  contentType: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DailyLogEntry {
   id: number;
   logDate: string;

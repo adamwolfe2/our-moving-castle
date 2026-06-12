@@ -10,6 +10,7 @@ const PROTECTED_API = [
   "/api/shopping",
   "/api/budget",
   "/api/marketplace",
+  "/api/documents",
   "/api/daily-log",
   "/api/export",
 ];

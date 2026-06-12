@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   CalendarDays,
+  FolderOpen,
   LayoutDashboard,
   ListChecks,
   LogOut,
@@ -28,6 +29,7 @@ const NAV = [
   { href: "/app/money", label: "Money", icon: Wallet },
   { href: "/app/budget", label: "Budget", icon: PiggyBank },
   { href: "/app/contacts", label: "Contacts", icon: Phone },
+  { href: "/app/files", label: "Files", icon: FolderOpen },
   { href: "/app/brief", label: "Daily Brief", icon: NotebookPen },
 ];
 

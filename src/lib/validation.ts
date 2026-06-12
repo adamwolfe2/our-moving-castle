@@ -82,6 +82,33 @@ export const marketplaceCreate = z.object({
 });
 export const marketplaceUpdate = marketplaceCreate.partial();
 
+export const documentCreate = z.object({
+  name: z.string().trim().min(1).max(400),
+  category: z
+    .enum(["inspection", "closing", "insurance", "utilities", "estimates", "receipts", "other"])
+    .default("other"),
+  url: z.string().url().max(2000),
+  pathname: nullableStr,
+  size: z.number().int().nonnegative().optional().nullable(),
+  contentType: nullableStr,
+  notes: nullableStr,
+});
+export const documentUpdate = z
+  .object({
+    name: z.string().trim().min(1).max(400),
+    category: z.enum([
+      "inspection",
+      "closing",
+      "insurance",
+      "utilities",
+      "estimates",
+      "receipts",
+      "other",
+    ]),
+    notes: nullableStr,
+  })
+  .partial();
+
 export const dailyLogCreate = z.object({
   logDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   mood: nullableStr,
