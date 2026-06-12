@@ -73,6 +73,7 @@ export const marketplaceCreate = z.object({
     .enum(["wishlist", "posted", "found", "contacted", "bought"])
     .default("wishlist"),
   url: nullableStr,
+  imageUrl: nullableStr,
   location: nullableStr,
   seller: nullableStr,
   isoPost: nullableStr,

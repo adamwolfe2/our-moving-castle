@@ -111,6 +111,7 @@ export interface MarketplaceItem {
   targetPrice: number | null;
   status: MarketplaceStatus;
   url: string | null;
+  imageUrl: string | null;
   location: string | null;
   seller: string | null;
   isoPost: string | null;

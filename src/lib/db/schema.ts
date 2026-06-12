@@ -106,6 +106,7 @@ export const marketplace = pgTable("marketplace", {
   targetPrice: integer("target_price"),
   status: text("status").notNull().default("wishlist"),
   url: text("url"),
+  imageUrl: text("image_url"),
   location: text("location"),
   seller: text("seller"),
   isoPost: text("iso_post"),
