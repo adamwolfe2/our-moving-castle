@@ -7,6 +7,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import Image from "next/image";
 import { EXTERIOR } from "@/lib/rooms";
+import { FrontDoorEntry } from "@/components/FrontDoorEntry";
 
 export function ExteriorHero() {
   const ref = useRef<HTMLElement>(null);
@@ -27,6 +28,8 @@ export function ExteriorHero() {
       className="relative h-[130vh] w-full bg-cream overflow-hidden"
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden">
+        {/* Hidden front-door portal → /login (zoom-into-the-threshold dive) */}
+        <FrontDoorEntry src={EXTERIOR.dream} />
         <motion.div
           style={{ y: photoY, scale: photoScale }}
           className="absolute inset-0"
