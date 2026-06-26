@@ -54,6 +54,34 @@ body {
   }
 }
 
+/* iOS Safari auto-zooms when a focused input is <16px. Force >=16px on phones
+   so data entry (tasks, money, budget, login) never triggers the zoom jump. */
+@media (max-width: 768px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Front-door portal: hover reveals a glow on desktop, but touch devices have no
+   hover — give them a soft persistent "breathe" so the door reads as tappable. */
+@keyframes door-glow {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
+@media (hover: none) {
+  .door-hint {
+    opacity: 0.5;
+    animation: door-glow 3.4s ease-in-out infinite;
+  }
+}
+
 ::selection {
   background: var(--color-terracotta);
   color: var(--color-cream);
