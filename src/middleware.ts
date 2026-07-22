@@ -13,6 +13,10 @@ const PROTECTED_API = [
   "/api/documents",
   "/api/daily-log",
   "/api/export",
+  "/api/maintenance",
+  "/api/maintenance-log",
+  "/api/home-accounts",
+  "/api/home-bills",
 ];
 
 export async function middleware(req: NextRequest) {
