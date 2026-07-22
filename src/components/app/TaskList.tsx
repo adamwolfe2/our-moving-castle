@@ -23,6 +23,7 @@ import { relativeDay, daysFromToday } from "@/lib/format";
 import {
   Badge,
   Button,
+  Card,
   Checkbox,
   EmptyState,
   Input,
@@ -91,9 +92,9 @@ export function TaskList({
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="text-sm text-dust">
-          <span className="font-mono text-walnut">{doneCount}</span> / {visible.length}{" "}
-          done
+        <div className="text-[13px] text-ink-3">
+          <span className="font-mono font-semibold text-ink">{doneCount}</span> /{" "}
+          {visible.length} done
         </div>
         <Button variant="soft" onClick={() => setAdding((v) => !v)}>
           <Plus size={15} /> Add task
@@ -115,8 +116,10 @@ export function TaskList({
                   })
                 }
                 className={cx(
-                  "cursor-pointer rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition",
-                  on ? "text-cream" : "bg-walnut/6 text-walnut/60 hover:bg-walnut/10",
+                  "min-h-9 cursor-pointer rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition",
+                  on
+                    ? "border-transparent text-white"
+                    : "border-line bg-surface text-ink-3 hover:bg-canvas",
                 )}
                 style={on ? { backgroundColor: CATEGORY_META[c].swatch } : undefined}
               >
@@ -138,7 +141,7 @@ export function TaskList({
         />
       )}
 
-      {error && <p className="mb-3 text-sm text-terracotta">{error}</p>}
+      {error && <p className="mb-3 text-sm text-bad">{error}</p>}
       {loading ? (
         <EmptyState>Loading…</EmptyState>
       ) : visible.length === 0 ? (
@@ -155,14 +158,14 @@ export function TaskList({
                       style={{ backgroundColor: CATEGORY_META[g.key].swatch }}
                     />
                   )}
-                  <h3 className="font-mono text-[11px] uppercase tracking-[0.16em] text-dust">
+                  <h3 className="font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-ink-3">
                     {groupBy === "category" && CATEGORY_META[g.key]
                       ? CATEGORY_META[g.key].label
                       : g.key}
                   </h3>
                 </div>
               )}
-              <div className="overflow-hidden rounded-2xl border border-walnut/10 bg-white/60">
+              <Card className="overflow-hidden">
                 {g.items.map((task, i) => (
                   <TaskRow
                     key={task.id}
@@ -177,7 +180,7 @@ export function TaskList({
                     onDelete={() => remove(task.id)}
                   />
                 ))}
-              </div>
+              </Card>
             </div>
           ))}
         </div>
@@ -206,7 +209,7 @@ function TaskRow({
 
   if (editing) {
     return (
-      <div className={cx(!last && "border-b border-walnut/8")}>
+      <div className={cx(!last && "border-b border-line")}>
         <TaskEditor
           task={task}
           onCancel={() => setEditing(false)}
@@ -222,8 +225,8 @@ function TaskRow({
   return (
     <div
       className={cx(
-        "group flex items-start gap-3 px-3 py-2.5 transition hover:bg-walnut/[0.03]",
-        !last && "border-b border-walnut/8",
+        "group flex items-start gap-3 px-3 py-2.5 transition hover:bg-canvas",
+        !last && "border-b border-line",
       )}
     >
       <div className="pt-0.5">
@@ -235,8 +238,8 @@ function TaskRow({
           <button
             onClick={() => task.notes && setOpen((v) => !v)}
             className={cx(
-              "text-left text-sm leading-snug",
-              done ? "text-dust line-through" : "text-walnut",
+              "text-left text-[13px] leading-snug",
+              done ? "text-ink-3 line-through" : "text-ink",
               task.notes && "cursor-pointer",
             )}
           >
@@ -246,7 +249,7 @@ function TaskRow({
 
         <div className="mt-1 flex flex-wrap items-center gap-1.5">
           {task.priority !== "normal" && !done && (
-            <Badge color={task.priority === "critical" ? "#C26B4A" : "#C8A96E"}>
+            <Badge tone={task.priority === "critical" ? "red" : "amber"}>
               {task.priority}
             </Badge>
           )}
@@ -254,24 +257,24 @@ function TaskRow({
             <span
               className={cx(
                 "font-mono text-[10px]",
-                overdue ? "font-semibold text-terracotta" : "text-dust",
+                overdue ? "font-semibold text-bad" : "text-ink-3",
               )}
             >
               {relativeDay(task.dueDate)}
             </span>
           )}
           {task.owner !== "both" && task.owner !== "unassigned" && (
-            <span className="font-mono text-[10px] text-moss">
+            <span className="font-mono text-[10px] text-ink-3">
               {OWNER_LABEL[task.owner]}
             </span>
           )}
           {task.cost != null && (
-            <span className="font-mono text-[10px] text-dust">${task.cost}</span>
+            <span className="font-mono text-[10px] text-ink-3">${task.cost}</span>
           )}
           {task.notes && (
             <button
               onClick={() => setOpen((v) => !v)}
-              className="flex cursor-pointer items-center text-dust"
+              className="flex cursor-pointer items-center text-ink-3"
             >
               {open ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
             </button>
@@ -279,7 +282,7 @@ function TaskRow({
         </div>
 
         {open && task.notes && (
-          <p className="mt-1.5 whitespace-pre-wrap text-xs leading-relaxed text-walnut/60">
+          <p className="mt-1.5 whitespace-pre-wrap text-xs leading-relaxed text-ink-2">
             {task.notes}
             {task.link && (
               <>
@@ -288,7 +291,7 @@ function TaskRow({
                   href={task.link}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-terracotta underline"
+                  className="text-info underline"
                 >
                   link
                 </a>
@@ -298,16 +301,16 @@ function TaskRow({
         )}
       </div>
 
-      <div className="flex items-center gap-0.5 opacity-0 transition group-hover:opacity-100">
+      <div className="flex items-center gap-0.5 opacity-100 transition md:opacity-0 md:group-hover:opacity-100">
         <button
           onClick={() => setEditing(true)}
-          className="cursor-pointer rounded-lg p-1.5 text-walnut/40 hover:bg-walnut/8 hover:text-walnut"
+          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-ink-3 hover:bg-canvas hover:text-ink md:h-8 md:w-8"
         >
           <Pencil size={14} />
         </button>
         <button
           onClick={onDelete}
-          className="cursor-pointer rounded-lg p-1.5 text-walnut/40 hover:bg-terracotta/10 hover:text-terracotta"
+          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-ink-3 hover:bg-bad/8 hover:text-bad md:h-8 md:w-8"
         >
           <Trash2 size={14} />
         </button>
@@ -356,7 +359,7 @@ function TaskEditor({
   }
 
   return (
-    <div className="space-y-2.5 bg-linen/40 p-3">
+    <div className="space-y-2.5 bg-canvas p-3">
       <div className="flex items-center gap-2">
         <Input
           autoFocus
@@ -367,7 +370,7 @@ function TaskEditor({
         />
         <button
           onClick={onCancel}
-          className="cursor-pointer rounded-lg p-1.5 text-walnut/40 hover:text-walnut"
+          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-ink-3 hover:text-ink md:h-8 md:w-8"
         >
           <X size={16} />
         </button>

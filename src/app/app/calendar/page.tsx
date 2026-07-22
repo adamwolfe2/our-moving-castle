@@ -93,7 +93,7 @@ export default function CalendarPage() {
             <Button variant="ghost" onClick={() => shift(-1)}>
               <ChevronLeft size={16} />
             </Button>
-            <span className="min-w-32 text-center font-serif text-lg text-walnut">
+            <span className="min-w-32 text-center text-[15px] font-semibold tracking-[-0.01em] text-ink">
               {monthLabel}
             </span>
             <Button variant="ghost" onClick={() => shift(1)}>
@@ -119,8 +119,10 @@ export default function CalendarPage() {
                 })
               }
               className={cx(
-                "cursor-pointer rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition",
-                on ? "text-cream" : "bg-walnut/6 text-walnut/60 hover:bg-walnut/10",
+                "min-h-9 cursor-pointer rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition",
+                on
+                  ? "border-transparent text-white"
+                  : "border-line bg-surface text-ink-3 hover:bg-canvas",
               )}
               style={on ? { backgroundColor: CATEGORY_META[c].swatch } : undefined}
             >
@@ -136,7 +138,7 @@ export default function CalendarPage() {
             {WEEKDAYS.map((w) => (
               <div
                 key={w}
-                className="px-1 py-1 text-center font-mono text-[10px] uppercase tracking-wider text-dust"
+                className="px-1 py-1 text-center font-mono text-[10px] uppercase tracking-wider text-ink-3"
               >
                 {w}
               </div>
@@ -155,18 +157,18 @@ export default function CalendarPage() {
                   key={i}
                   onClick={() => setSelected(cell)}
                   className={cx(
-                    "flex min-h-16 cursor-pointer flex-col rounded-xl border p-1.5 text-left transition md:min-h-20",
+                    "flex min-h-16 cursor-pointer flex-col rounded-lg border p-1.5 text-left transition md:min-h-20",
                     isSel
-                      ? "border-terracotta/50 bg-white"
-                      : "border-walnut/8 bg-white/50 hover:bg-white/80",
+                      ? "border-ink/30 bg-surface"
+                      : "border-line bg-surface hover:bg-canvas",
                   )}
                 >
                   <span
                     className={cx(
                       "flex h-5 w-5 items-center justify-center rounded-full text-xs",
-                      isMoveDay && "bg-terracotta font-semibold text-cream",
-                      isToday && !isMoveDay && "bg-walnut font-semibold text-cream",
-                      !isToday && !isMoveDay && "text-walnut/70",
+                      isMoveDay && "bg-bad font-semibold text-white",
+                      isToday && !isMoveDay && "bg-ink font-semibold text-white",
+                      !isToday && !isMoveDay && "text-ink-2",
                     )}
                   >
                     {d}
@@ -191,17 +193,17 @@ export default function CalendarPage() {
 
         {/* Day panel */}
         <Card className="h-fit p-5">
-          <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-dust">
+          <div className="font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-ink-3">
             {selected ? fmtDate(selected) : "Pick a day"}
           </div>
           {selected === "2026-06-17" && (
-            <div className="mt-1 font-serif text-lg text-terracotta">
+            <div className="mt-1 text-[15px] font-semibold tracking-[-0.01em] text-bad">
               Move-in day
             </div>
           )}
           <div className="mt-4 space-y-2">
             {selectedTasks.length === 0 && (
-              <p className="text-sm text-dust">No tasks for this day.</p>
+              <p className="text-sm text-ink-3">No tasks for this day.</p>
             )}
             {selectedTasks.map((t) => (
               <div key={t.id} className="flex items-start gap-2.5">
@@ -218,8 +220,8 @@ export default function CalendarPage() {
                 <div className="min-w-0 flex-1">
                   <div
                     className={cx(
-                      "text-sm leading-snug",
-                      t.status === "done" ? "text-dust line-through" : "text-walnut",
+                      "text-[13px] leading-snug",
+                      t.status === "done" ? "text-ink-3 line-through" : "text-ink",
                     )}
                   >
                     {t.title}

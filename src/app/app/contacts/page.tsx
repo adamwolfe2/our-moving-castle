@@ -61,21 +61,23 @@ export default function ContactsPage() {
               <Card key={c.id} className="group p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <div className="font-serif text-lg text-walnut">{c.name}</div>
+                    <div className="text-[15px] font-semibold tracking-[-0.01em] text-ink">
+                      {c.name}
+                    </div>
                     {c.role && (
-                      <div className="text-xs text-dust">{c.role}</div>
+                      <div className="text-xs text-ink-3">{c.role}</div>
                     )}
                   </div>
-                  <div className="flex opacity-0 transition group-hover:opacity-100">
+                  <div className="flex opacity-100 transition md:opacity-0 md:group-hover:opacity-100">
                     <button
                       onClick={() => setEditingId(c.id)}
-                      className="cursor-pointer p-1.5 text-walnut/40 hover:text-walnut"
+                      className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-ink-3 hover:text-ink md:h-8 md:w-8"
                     >
                       <Pencil size={14} />
                     </button>
                     <button
                       onClick={() => remove(c.id)}
-                      className="cursor-pointer p-1.5 text-walnut/40 hover:text-terracotta"
+                      className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-ink-3 hover:text-bad md:h-8 md:w-8"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -85,23 +87,23 @@ export default function ContactsPage() {
                   {c.phone && (
                     <a
                       href={`tel:${c.phone.replace(/[^0-9+]/g, "")}`}
-                      className="flex items-center gap-2 text-sm text-walnut hover:text-terracotta"
+                      className="flex items-center gap-2 text-sm text-ink hover:text-ink-2"
                     >
-                      <Phone size={14} className="text-moss" />
+                      <Phone size={14} className="text-ink-3" />
                       {c.phone}
                     </a>
                   )}
                   {c.email && (
                     <a
                       href={`mailto:${c.email}`}
-                      className="flex items-center gap-2 text-sm text-walnut hover:text-terracotta"
+                      className="flex items-center gap-2 text-sm text-ink hover:text-ink-2"
                     >
-                      <Mail size={14} className="text-moss" />
+                      <Mail size={14} className="text-ink-3" />
                       {c.email}
                     </a>
                   )}
                   {c.notes && (
-                    <p className="pt-1 text-xs leading-relaxed text-walnut/60">
+                    <p className="pt-1 text-xs leading-relaxed text-ink-2">
                       {c.notes}
                     </p>
                   )}
@@ -142,7 +144,7 @@ function ContactEditor({
   }
 
   return (
-    <Card className="mb-4 space-y-2.5 bg-linen/40 p-4 sm:col-span-2">
+    <Card className="mb-4 space-y-2.5 bg-canvas p-4 sm:col-span-2">
       <div className="flex items-center gap-2">
         <Input
           autoFocus
@@ -152,7 +154,7 @@ function ContactEditor({
         />
         <button
           onClick={onCancel}
-          className="cursor-pointer p-1.5 text-walnut/40 hover:text-walnut"
+          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-ink-3 hover:text-ink md:h-8 md:w-8"
         >
           <X size={16} />
         </button>

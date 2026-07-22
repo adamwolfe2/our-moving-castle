@@ -80,15 +80,15 @@ export default function BriefPage() {
         >
           Daily Brief
         </SectionTitle>
-        <p className="mb-4 max-w-xl text-sm text-dust">
+        <p className="mb-4 max-w-xl text-sm text-ink-3">
           A live snapshot. Hit “Copy for Claude” and paste it into a chat to get
           help re-planning the day around what’s actually left.
         </p>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <BriefCol title="Overdue" tone="text-terracotta" tasks={overdue} empty="Nothing overdue." />
-          <BriefCol title="Due today" tone="text-walnut" tasks={today} empty="Nothing due today." />
-          <BriefCol title="Next 7 days" tone="text-moss" tasks={week} empty="Clear week ahead." />
+          <BriefCol title="Overdue" tone="text-bad" tasks={overdue} empty="Nothing overdue." />
+          <BriefCol title="Due today" tone="text-ink" tasks={today} empty="Nothing due today." />
+          <BriefCol title="Next 7 days" tone="text-ok" tasks={week} empty="Clear week ahead." />
         </div>
       </div>
 
@@ -106,31 +106,31 @@ export default function BriefPage() {
             .map((e) => (
               <Card key={e.id} className="group p-4">
                 <div className="flex items-center justify-between">
-                  <div className="font-mono text-[11px] uppercase tracking-wider text-dust">
+                  <div className="font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-ink-3">
                     {fmtDate(e.logDate)}
-                    {e.mood && <span className="ml-2 text-moss">{e.mood}</span>}
+                    {e.mood && <span className="ml-2 text-ink-2">{e.mood}</span>}
                   </div>
                   <button
                     onClick={() => log.remove(e.id)}
-                    className="cursor-pointer p-1 text-walnut/30 opacity-0 transition hover:text-terracotta group-hover:opacity-100"
+                    className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-ink-3 opacity-100 transition hover:text-bad md:h-8 md:w-8 md:opacity-0 md:group-hover:opacity-100"
                   >
                     <Trash2 size={14} />
                   </button>
                 </div>
                 {e.wins && (
-                  <p className="mt-2 text-sm text-walnut">
-                    <span className="text-moss">Wins · </span>
+                  <p className="mt-2 text-sm text-ink">
+                    <span className="font-medium text-ok">Wins · </span>
                     {e.wins}
                   </p>
                 )}
                 {e.blockers && (
-                  <p className="mt-1 text-sm text-walnut">
-                    <span className="text-terracotta">Blockers · </span>
+                  <p className="mt-1 text-sm text-ink">
+                    <span className="font-medium text-bad">Blockers · </span>
                     {e.blockers}
                   </p>
                 )}
                 {e.entry && (
-                  <p className="mt-1 whitespace-pre-wrap text-sm text-walnut/70">
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-ink-2">
                     {e.entry}
                   </p>
                 )}
@@ -156,15 +156,15 @@ function BriefCol({
   return (
     <Card className="p-4">
       <div className="mb-3 flex items-baseline justify-between">
-        <h3 className={`font-serif text-lg ${tone}`}>{title}</h3>
-        <span className="font-mono text-sm text-dust">{tasks.length}</span>
+        <h3 className={`text-sm font-semibold tracking-[-0.01em] ${tone}`}>{title}</h3>
+        <span className="font-mono text-sm tabular-nums text-ink-3">{tasks.length}</span>
       </div>
       {tasks.length === 0 ? (
-        <p className="text-sm text-dust">{empty}</p>
+        <p className="text-sm text-ink-3">{empty}</p>
       ) : (
         <ul className="space-y-2">
           {tasks.map((t) => (
-            <li key={t.id} className="flex items-start gap-2 text-sm text-walnut">
+            <li key={t.id} className="flex items-start gap-2 text-sm text-ink">
               <span
                 className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
                 style={{ backgroundColor: CATEGORY_META[t.category].swatch }}
@@ -172,7 +172,7 @@ function BriefCol({
               <span>
                 {t.title}
                 {t.dueDate && (
-                  <span className="ml-1 font-mono text-[10px] text-dust">
+                  <span className="ml-1 font-mono text-[10px] text-ink-3">
                     {fmtDate(t.dueDate)}
                   </span>
                 )}
@@ -217,7 +217,7 @@ function LogEditor({
   return (
     <Card className="space-y-2.5 p-4">
       <div className="flex items-center justify-between">
-        <div className="font-mono text-[11px] uppercase tracking-wider text-dust">
+        <div className="font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-ink-3">
           Today · {fmtDate(todayISO())}
         </div>
         <Input

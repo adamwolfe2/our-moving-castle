@@ -14,6 +14,19 @@
   --font-serif: var(--font-fraunces), "Cormorant Garamond", serif;
   --font-sans: var(--font-geist-sans), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), "JetBrains Mono", monospace;
+
+  /* ---- CRM (private /app) tokens — unused by the public site ---- */
+  --color-canvas: #FAFAFA;
+  --color-surface: #FFFFFF;
+  --color-line: #E5E5E3;
+  --color-line-strong: #D4D4D2;
+  --color-ink: #18181B;
+  --color-ink-2: #52525B;
+  --color-ink-3: #A1A1AA;
+  --color-ok: #16A34A;
+  --color-warn: #D97706;
+  --color-bad: #DC2626;
+  --color-info: #2563EB;
 }
 
 :root {
@@ -140,4 +153,49 @@ h1, h2, h3 {
   .h-screen {
     height: 100dvh;
   }
+}
+
+/* ============================================================
+   CRM scope (.crm) — private /app only. Remaps the Howl's
+   palette vars so every existing utility (text-walnut,
+   bg-linen, border-walnut/10, …) re-resolves to a neutral
+   professional SaaS palette. The public site keeps the @theme
+   values above — do not touch those.
+   ============================================================ */
+.crm {
+  cursor: auto;
+
+  /* palette remap */
+  --color-cream: #FAFAFA;
+  --color-cream-deep: #F4F4F4;
+  --color-linen: #F6F6F5;
+  --color-walnut: #18181B;
+  --color-walnut-soft: #303035;
+  --color-terracotta: #DC2626;
+  --color-moss: #16A34A;
+  --color-dust: #71717A;
+  --color-gold: #D97706;
+
+  /* no serif inside the CRM — font-serif utilities become sans */
+  --font-serif: var(--font-geist-sans), system-ui, sans-serif;
+
+  /* tighter radii: rounded-2xl 16→10px, rounded-xl 12→8px */
+  --radius-2xl: 10px;
+  --radius-xl: 8px;
+
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-feature-settings: "ss01", "cv01", "tnum";
+}
+
+.crm h1,
+.crm h2,
+.crm h3 {
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+}
+
+.crm ::selection {
+  background: var(--color-ink);
+  color: #fff;
 }

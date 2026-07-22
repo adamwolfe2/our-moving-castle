@@ -11,6 +11,15 @@ import type {
 
 export const cx = clsx;
 
+/* ---------------------------------------------------------------
+   Shared table classes — every /app table should converge on these.
+   Numerics: add "text-right tabular-nums" on the cell.
+   --------------------------------------------------------------- */
+export const TH =
+  "px-3 py-2 text-left font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-3";
+export const TD = "px-3 py-2 text-[13px] text-ink";
+export const TR = "border-t border-line transition-colors hover:bg-canvas";
+
 export function Card({
   children,
   className,
@@ -21,7 +30,7 @@ export function Card({
   return (
     <div
       className={cx(
-        "rounded-2xl border border-walnut/10 bg-white/70 shadow-[0_1px_0_rgba(43,36,28,0.04)] backdrop-blur-sm",
+        "rounded-[10px] border border-line bg-surface shadow-[0_1px_2px_rgba(0,0,0,0.03)]",
         className,
       )}
     >
@@ -43,13 +52,55 @@ export function SectionTitle({
     <div className="mb-3 flex items-end justify-between gap-3">
       <div>
         {kicker && (
-          <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-dust">
+          <div className="font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-ink-3">
             {kicker}
           </div>
         )}
-        <h2 className="font-serif text-2xl leading-tight text-walnut">{children}</h2>
+        <h2 className="text-[15px] font-semibold leading-6 tracking-[-0.01em] text-ink">
+          {children}
+        </h2>
       </div>
       {right}
+    </div>
+  );
+}
+
+/* Stat tile for dashboard/list-header strips: label + big number + delta. */
+export function Stat({
+  label,
+  value,
+  sub,
+  tone,
+  className,
+}: {
+  label: string;
+  value: ReactNode;
+  sub?: ReactNode;
+  tone?: "ok" | "warn" | "bad" | "info";
+  className?: string;
+}) {
+  return (
+    <div className={cx("min-w-0 px-4 py-3", className)}>
+      <div className="truncate font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-3">
+        {label}
+      </div>
+      <div className="mt-0.5 text-xl font-semibold tabular-nums tracking-[-0.01em] text-ink">
+        {value}
+      </div>
+      {sub && (
+        <div
+          className={cx(
+            "mt-0.5 truncate text-[11px]",
+            tone === "ok" && "text-ok",
+            tone === "warn" && "text-warn",
+            tone === "bad" && "text-bad",
+            tone === "info" && "text-info",
+            !tone && "text-ink-3",
+          )}
+        >
+          {sub}
+        </div>
+      )}
     </div>
   );
 }
@@ -65,11 +116,13 @@ export function Button({
   return (
     <button
       className={cx(
-        "inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50",
-        variant === "solid" && "bg-walnut text-cream hover:bg-walnut-soft",
-        variant === "soft" && "bg-walnut/8 text-walnut hover:bg-walnut/12",
-        variant === "ghost" && "text-walnut/70 hover:bg-walnut/8 hover:text-walnut",
-        variant === "danger" && "text-terracotta hover:bg-terracotta/10",
+        "inline-flex min-h-9 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50",
+        variant === "solid" &&
+          "bg-ink text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] hover:bg-walnut-soft",
+        variant === "soft" &&
+          "border border-line bg-surface text-ink shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:bg-canvas",
+        variant === "ghost" && "text-ink-2 hover:bg-cream-deep hover:text-ink",
+        variant === "danger" && "text-bad hover:bg-bad/8",
         className,
       )}
       {...rest}
@@ -79,26 +132,18 @@ export function Button({
   );
 }
 
+const fieldCls =
+  "rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink outline-none transition placeholder:text-ink-3 focus:border-line-strong focus:ring-2 focus:ring-ink/8";
+
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      {...props}
-      className={cx(
-        "w-full rounded-xl border border-walnut/12 bg-white/80 px-3 py-2 text-sm text-walnut outline-none transition placeholder:text-dust focus:border-terracotta/50 focus:ring-2 focus:ring-terracotta/15",
-        props.className,
-      )}
-    />
-  );
+  return <input {...props} className={cx("w-full", fieldCls, props.className)} />;
 }
 
 export function Textarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
       {...props}
-      className={cx(
-        "w-full resize-y rounded-xl border border-walnut/12 bg-white/80 px-3 py-2 text-sm text-walnut outline-none transition placeholder:text-dust focus:border-terracotta/50 focus:ring-2 focus:ring-terracotta/15",
-        props.className,
-      )}
+      className={cx("w-full resize-y", fieldCls, props.className)}
     />
   );
 }
@@ -107,10 +152,7 @@ export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
       {...props}
-      className={cx(
-        "cursor-pointer rounded-xl border border-walnut/12 bg-white/80 px-2.5 py-2 text-sm text-walnut outline-none transition focus:border-terracotta/50 focus:ring-2 focus:ring-terracotta/15",
-        props.className,
-      )}
+      className={cx("cursor-pointer", fieldCls, "px-2.5", props.className)}
     />
   );
 }
@@ -130,10 +172,10 @@ export function Checkbox({
       aria-pressed={checked}
       onClick={onChange}
       className={cx(
-        "flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-md border transition",
+        "flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-[5px] border transition",
         checked
-          ? "border-moss bg-moss text-cream"
-          : "border-walnut/25 bg-white/60 text-transparent hover:border-moss/60",
+          ? "border-ink bg-ink text-white"
+          : "border-line-strong bg-surface text-transparent hover:border-ink-3",
         className,
       )}
     >
@@ -142,28 +184,53 @@ export function Checkbox({
   );
 }
 
+/* ---------------------------------------------------------------
+   Badge — status chips.
+   Preferred: tone="green|amber|red|blue|gray".
+   Back-compat: color=<hex|css-var> renders a neutral chip with a
+   colored dot (no colored washes) so legacy call sites still look
+   professional until they migrate.
+   --------------------------------------------------------------- */
+export type BadgeTone = "green" | "amber" | "red" | "blue" | "gray";
+
+const TONE_CLS: Record<BadgeTone, string> = {
+  green: "border-ok/25 bg-ok/8 text-[#15803D]",
+  amber: "border-warn/30 bg-warn/8 text-[#B45309]",
+  red: "border-bad/25 bg-bad/8 text-[#B91C1C]",
+  blue: "border-info/25 bg-info/8 text-[#1D4ED8]",
+  gray: "border-line bg-canvas text-ink-2",
+};
+
+const TONE_DOT: Record<BadgeTone, string> = {
+  green: "bg-ok",
+  amber: "bg-warn",
+  red: "bg-bad",
+  blue: "bg-info",
+  gray: "bg-ink-3",
+};
+
 export function Badge({
   children,
+  tone,
   color,
   className,
 }: {
   children: ReactNode;
+  tone?: BadgeTone;
   color?: string;
   className?: string;
 }) {
+  const toneCls = tone ? TONE_CLS[tone] : color ? TONE_CLS.gray : TONE_CLS.gray;
   return (
     <span
       className={cx(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider",
+        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2 py-[3px] text-[11px] font-medium leading-none",
+        toneCls,
         className,
       )}
-      style={
-        color
-          ? { backgroundColor: `${color}1f`, color: shade(color) }
-          : undefined
-      }
     >
-      {color && (
+      {tone && <span className={cx("h-1.5 w-1.5 rounded-full", TONE_DOT[tone])} />}
+      {!tone && color && (
         <span
           className="h-1.5 w-1.5 rounded-full"
           style={{ backgroundColor: color }}
@@ -174,18 +241,12 @@ export function Badge({
   );
 }
 
-function shade(hex: string) {
-  // keep CSS-var colors as-is; darken raw hex a touch for contrast
-  if (hex.startsWith("var(")) return hex;
-  return hex;
-}
-
 export function ProgressBar({ value }: { value: number }) {
   const pct = Math.max(0, Math.min(100, value));
   return (
-    <div className="h-2 w-full overflow-hidden rounded-full bg-walnut/8">
+    <div className="h-1.5 w-full overflow-hidden rounded-full bg-cream-deep">
       <div
-        className="h-full rounded-full bg-moss transition-all duration-500"
+        className="h-full rounded-full bg-ink transition-all duration-500"
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -194,7 +255,7 @@ export function ProgressBar({ value }: { value: number }) {
 
 export function EmptyState({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-xl border border-dashed border-walnut/15 px-4 py-8 text-center text-sm text-dust">
+    <div className="rounded-lg border border-dashed border-line px-4 py-8 text-center text-[13px] text-ink-3">
       {children}
     </div>
   );

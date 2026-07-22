@@ -88,7 +88,7 @@ export default function FilesPage() {
       <SectionTitle kicker="Inspection reports, closing docs, receipts — one place">
         Files
       </SectionTitle>
-      <p className="mb-5 max-w-xl text-sm text-dust">
+      <p className="mb-5 max-w-xl text-sm text-ink-3">
         Upload PDFs, scans, and photos. Stored privately in cloud, viewable from both
         your phones. {items.length} file{items.length === 1 ? "" : "s"} ·{" "}
         {fmtSize(totalSize) || "0 B"}.
@@ -97,8 +97,8 @@ export default function FilesPage() {
       {/* Upload zone */}
       <div
         className={cx(
-          "mb-6 rounded-2xl border-2 border-dashed bg-white/70 p-6 backdrop-blur-sm transition",
-          drag ? "border-terracotta/60 bg-terracotta/5" : "border-walnut/15",
+          "mb-6 rounded-[10px] border-2 border-dashed p-6 transition",
+          drag ? "border-ink/40 bg-canvas" : "border-line bg-surface",
         )}
         onDragOver={(e) => {
           e.preventDefault();
@@ -112,12 +112,12 @@ export default function FilesPage() {
         }}
       >
         <div className="flex flex-col items-center gap-3 text-center">
-          <Upload size={24} className="text-dust" />
-          <div className="text-sm text-walnut">
+          <Upload size={24} className="text-ink-3" />
+          <div className="text-sm text-ink">
             Drag files here, or
           </div>
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="text-xs text-dust">Save into:</span>
+            <span className="text-xs text-ink-3">Save into:</span>
             <Select
               value={category}
               onChange={(e) => setCategory(e.target.value as DocCategory)}
@@ -148,14 +148,14 @@ export default function FilesPage() {
             {uploading.map((n) => (
               <div
                 key={n}
-                className="flex items-center gap-2 text-xs text-walnut/70"
+                className="flex items-center gap-2 text-xs text-ink-2"
               >
                 <Loader2 size={13} className="animate-spin" /> Uploading {n}…
               </div>
             ))}
           </div>
         )}
-        {err && <p className="mt-3 text-center text-sm text-terracotta">{err}</p>}
+        {err && <p className="mt-3 text-center text-sm text-bad">{err}</p>}
       </div>
 
       {loading ? (
@@ -166,10 +166,10 @@ export default function FilesPage() {
         <div className="space-y-6">
           {groups.map((g) => (
             <div key={g.cat}>
-              <h3 className="mb-2 font-mono text-[11px] uppercase tracking-[0.16em] text-dust">
+              <h3 className="mb-2 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-ink-3">
                 {CAT_LABEL[g.cat]} · {g.items.length}
               </h3>
-              <Card className="divide-y divide-walnut/8">
+              <Card className="divide-y divide-line">
                 {g.items.map((d) => (
                   <DocRow
                     key={d.id}
@@ -198,8 +198,8 @@ function DocRow({
 }) {
   const isImg = (doc.contentType ?? "").startsWith("image/");
   return (
-    <div className="group flex items-center gap-3 px-3 py-2.5 hover:bg-walnut/[0.03]">
-      <div className="text-dust">
+    <div className="group flex items-center gap-3 px-3 py-2.5 hover:bg-canvas">
+      <div className="text-ink-3">
         {isImg ? <ImageIcon size={18} /> : <FileText size={18} />}
       </div>
       <a
@@ -208,15 +208,15 @@ function DocRow({
         rel="noreferrer"
         className="min-w-0 flex-1"
       >
-        <div className="truncate text-sm text-walnut hover:text-terracotta">
+        <div className="truncate text-[13px] text-ink hover:text-ink-2">
           {doc.name}
         </div>
-        <div className="font-mono text-[10px] text-dust">{fmtSize(doc.size)}</div>
+        <div className="font-mono text-[10px] text-ink-3">{fmtSize(doc.size)}</div>
       </a>
       <Select
         value={doc.category}
         onChange={(e) => onMove(e.target.value as DocCategory)}
-        className="text-xs opacity-0 transition group-hover:opacity-100"
+        className="text-xs opacity-100 transition md:opacity-0 md:group-hover:opacity-100"
       >
         {DOC_CATEGORIES.map((c) => (
           <option key={c} value={c}>
@@ -229,13 +229,13 @@ function DocRow({
         target="_blank"
         rel="noreferrer"
         download
-        className="cursor-pointer rounded-lg p-1.5 text-walnut/40 hover:bg-walnut/8 hover:text-walnut"
+        className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-ink-3 hover:bg-canvas hover:text-ink md:h-8 md:w-8"
       >
         <Download size={15} />
       </a>
       <button
         onClick={onDelete}
-        className="cursor-pointer rounded-lg p-1.5 text-walnut/40 opacity-0 transition hover:text-terracotta group-hover:opacity-100"
+        className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-ink-3 opacity-100 transition hover:bg-bad/8 hover:text-bad md:h-8 md:w-8 md:opacity-0 md:group-hover:opacity-100"
       >
         <Trash2 size={15} />
       </button>

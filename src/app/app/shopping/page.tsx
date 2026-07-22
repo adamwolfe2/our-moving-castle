@@ -64,26 +64,26 @@ export default function ShoppingPage() {
 
       <div className="mb-6 grid grid-cols-3 gap-3">
         <Card className="p-4">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-dust">
+          <div className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-3">
             Bought
           </div>
-          <div className="mt-1 font-serif text-2xl text-moss">
+          <div className="mt-0.5 text-xl font-semibold tabular-nums tracking-[-0.01em] text-ok">
             {bought}/{items.length}
           </div>
         </Card>
         <Card className="p-4">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-dust">
+          <div className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-3">
             Est. total
           </div>
-          <div className="mt-1 font-serif text-2xl text-walnut">
+          <div className="mt-0.5 text-xl font-semibold tabular-nums tracking-[-0.01em] text-ink">
             {estTotal ? fmtMoney(estTotal) : "—"}
           </div>
         </Card>
         <Card className="p-4">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-dust">
+          <div className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-3">
             Still to buy
           </div>
-          <div className="mt-1 font-serif text-2xl text-terracotta">
+          <div className="mt-0.5 text-xl font-semibold tabular-nums tracking-[-0.01em] text-bad">
             {estLeft ? fmtMoney(estLeft) : "—"}
           </div>
         </Card>
@@ -118,7 +118,7 @@ export default function ShoppingPage() {
             </Button>
             <button
               onClick={() => setAdding(false)}
-              className="cursor-pointer p-1.5 text-walnut/40 hover:text-walnut"
+              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-ink-3 hover:text-ink md:h-8 md:w-8"
             >
               <X size={16} />
             </button>
@@ -134,14 +134,14 @@ export default function ShoppingPage() {
         <div className="space-y-6">
           {groups.map(([area, list]) => (
             <div key={area}>
-              <h3 className="mb-2 font-mono text-[11px] uppercase tracking-[0.16em] text-dust">
+              <h3 className="mb-2 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-ink-3">
                 {area}
               </h3>
-              <Card className="divide-y divide-walnut/8">
+              <Card className="divide-y divide-line">
                 {list.map((s) => (
                   <div
                     key={s.id}
-                    className="group flex items-center gap-3 px-3 py-2.5 hover:bg-walnut/[0.03]"
+                    className="group flex items-center gap-3 px-3 py-2.5 hover:bg-canvas"
                   >
                     <Checkbox
                       checked={s.bought}
@@ -149,20 +149,20 @@ export default function ShoppingPage() {
                     />
                     <span
                       className={cx(
-                        "flex-1 text-sm",
-                        s.bought ? "text-dust line-through" : "text-walnut",
+                        "flex-1 text-[13px]",
+                        s.bought ? "text-ink-3 line-through" : "text-ink",
                       )}
                     >
                       {s.item}
                     </span>
                     {s.estCost != null && (
-                      <span className="font-mono text-xs text-dust">
+                      <span className="font-mono text-xs tabular-nums text-ink-3">
                         {fmtMoney(s.estCost)}
                       </span>
                     )}
                     <button
                       onClick={() => remove(s.id)}
-                      className="cursor-pointer p-1 text-walnut/30 opacity-0 transition hover:text-terracotta group-hover:opacity-100"
+                      className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-ink-3 opacity-100 transition hover:text-bad md:h-8 md:w-8 md:opacity-0 md:group-hover:opacity-100"
                     >
                       <Trash2 size={14} />
                     </button>

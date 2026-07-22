@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="min-h-screen bg-cream text-walnut"
+      className="crm min-h-screen bg-canvas text-ink antialiased"
       style={{ cursor: "auto" }}
     >
       <MobileTopBar />

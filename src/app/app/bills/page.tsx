@@ -29,6 +29,10 @@ import {
   Input,
   Select,
   SectionTitle,
+  Stat,
+  TD,
+  TH,
+  TR,
   cx,
 } from "@/components/app/ui";
 
@@ -98,39 +102,34 @@ export default function BillsPage() {
       </SectionTitle>
 
       {/* Stat strip */}
-      <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Card className="p-3.5">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-dust">Est. monthly</div>
-          <div className="mt-0.5 font-serif text-2xl text-walnut">{fmtMoney(stats.estTotal)}</div>
-        </Card>
-        <Card className="p-3.5">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-dust">On autopay</div>
-          <div className={cx("mt-0.5 font-serif text-2xl", stats.onAutopay === stats.accountCount ? "text-moss" : "text-terracotta")}>
-            {stats.onAutopay}/{stats.accountCount}
-          </div>
-        </Card>
-        <Card className="p-3.5">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-dust">Pending bills</div>
-          <div className="mt-0.5 font-serif text-2xl text-gold">
-            {stats.pendingCount ? fmtMoney(stats.pendingTotal) : "—"}
-          </div>
-        </Card>
-        <Card className="p-3.5">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-dust">
-            {stats.lastPeriod ? `Actuals ${stats.lastPeriod}` : "Actuals"}
-          </div>
-          <div className="mt-0.5 font-serif text-2xl text-walnut">
-            {stats.lastPeriodTotal != null ? fmtMoney(stats.lastPeriodTotal) : "—"}
-          </div>
-        </Card>
+      <div className="mb-4 grid grid-cols-2 gap-px overflow-hidden rounded-[10px] border border-line bg-line shadow-[0_1px_2px_rgba(0,0,0,0.03)] md:grid-cols-4">
+        <Stat className="bg-surface" label="Est. monthly" value={fmtMoney(stats.estTotal)} />
+        <Stat
+          className="bg-surface"
+          label="On autopay"
+          value={`${stats.onAutopay}/${stats.accountCount}`}
+          tone={stats.onAutopay === stats.accountCount ? "ok" : "bad"}
+          sub={stats.onAutopay === stats.accountCount ? "all enrolled" : "action needed"}
+        />
+        <Stat
+          className="bg-surface"
+          label="Pending bills"
+          value={stats.pendingCount ? fmtMoney(stats.pendingTotal) : "—"}
+          tone={stats.pendingCount ? "warn" : undefined}
+        />
+        <Stat
+          className="bg-surface"
+          label={stats.lastPeriod ? `Actuals ${stats.lastPeriod}` : "Actuals"}
+          value={stats.lastPeriodTotal != null ? fmtMoney(stats.lastPeriodTotal) : "—"}
+        />
       </div>
 
       {/* Autopay nag */}
       {notEnrolled.length > 0 && (
-        <Card className="mb-5 flex items-start gap-3 border-terracotta/25 bg-terracotta/6 p-4">
-          <CircleAlert size={18} className="mt-0.5 shrink-0 text-terracotta" />
-          <div className="text-sm text-walnut/80">
-            <span className="font-semibold text-walnut">Autopay not enrolled:</span>{" "}
+        <Card className="mb-5 flex items-start gap-3 border-bad/25 bg-bad/6 p-4">
+          <CircleAlert size={18} className="mt-0.5 shrink-0 text-bad" />
+          <div className="text-sm text-ink-2">
+            <span className="font-semibold text-ink">Autopay not enrolled:</span>{" "}
             {notEnrolled.map((a) => a.provider).join(", ")}. Enroll in each portal,
             then flip the toggle here. Account numbers stay in the vault — never in this app.
           </div>
@@ -148,7 +147,7 @@ export default function BillsPage() {
       )}
 
       {/* Accounts spreadsheet */}
-      <h3 className="mb-2 font-mono text-[11px] uppercase tracking-[0.16em] text-dust">
+      <h3 className="mb-2 font-mono text-[11px] uppercase tracking-[0.16em] text-ink-3">
         Accounts
       </h3>
       {accountsApi.loading ? (
@@ -172,17 +171,17 @@ export default function BillsPage() {
               <Card key={a.id} className="p-3.5">
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium text-walnut">{a.provider}</div>
+                    <div className="truncate text-sm font-medium text-ink">{a.provider}</div>
                     <div className="mt-0.5 flex items-center gap-1.5">
                       <Badge color={SERVICE_COLOR[a.service]}>{a.service}</Badge>
-                      <span className="font-mono text-[10px] text-dust">
+                      <span className="font-mono text-[10px] text-ink-3">
                         {a.billingCycle}
                         {a.dueDay ? ` · ${a.dueDay}` : ""}
                       </span>
                     </div>
                   </div>
                   <div className="flex shrink-0 flex-col items-end gap-1">
-                    <span className="font-mono text-base text-walnut">
+                    <span className="font-mono text-base text-ink tabular-nums">
                       {a.estMonthly != null ? fmtMoney(a.estMonthly) : "—"}
                     </span>
                     <button
@@ -190,8 +189,8 @@ export default function BillsPage() {
                       className={cx(
                         "min-h-8 cursor-pointer rounded-full px-3 py-1 font-mono text-[10px] uppercase tracking-wider transition",
                         a.autopay
-                          ? "bg-moss/15 text-moss"
-                          : "bg-terracotta/12 text-terracotta",
+                          ? "bg-ok/15 text-ok"
+                          : "bg-bad/12 text-bad",
                       )}
                     >
                       {a.autopay ? "autopay ✓" : "no autopay"}
@@ -199,19 +198,19 @@ export default function BillsPage() {
                   </div>
                 </div>
                 {a.notes && (
-                  <p className="mt-2 line-clamp-2 text-[11px] leading-snug text-walnut/50">{a.notes}</p>
+                  <p className="mt-2 line-clamp-2 text-[11px] leading-snug text-ink-3">{a.notes}</p>
                 )}
                 <div className="mt-1 flex justify-end">
                   <button
                     onClick={() => setEditingId(a.id)}
-                    className="cursor-pointer p-2 text-walnut/35 active:text-walnut"
+                    className="cursor-pointer p-2 text-ink-3 active:text-ink"
                     aria-label="Edit"
                   >
                     <Pencil size={14} />
                   </button>
                   <button
                     onClick={() => accountsApi.remove(a.id)}
-                    className="cursor-pointer p-2 text-walnut/35 active:text-terracotta"
+                    className="cursor-pointer p-2 text-ink-3 active:text-bad"
                     aria-label="Delete"
                   >
                     <Trash2 size={14} />
@@ -225,7 +224,7 @@ export default function BillsPage() {
         <Card className="mb-8 hidden overflow-x-auto md:block">
           <table className="w-full min-w-[720px] border-collapse text-left">
             <thead>
-              <tr className="border-b border-walnut/10 bg-linen/80">
+              <tr className="border-b border-line bg-canvas">
                 <Th>Provider</Th>
                 <Th>Service</Th>
                 <Th>Cycle</Th>
@@ -236,10 +235,10 @@ export default function BillsPage() {
                 <Th className="w-16" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-walnut/6">
+            <tbody>
               {accounts.map((a) =>
                 editingId === a.id ? (
-                  <tr key={a.id}>
+                  <tr key={a.id} className="border-t border-line">
                     <td colSpan={8} className="p-0">
                       <AccountEditor
                         account={a}
@@ -252,38 +251,38 @@ export default function BillsPage() {
                     </td>
                   </tr>
                 ) : (
-                  <tr key={a.id} className="group text-sm hover:bg-walnut/[0.03]">
-                    <td className="py-2.5 pl-3 pr-2 text-walnut">{a.provider}</td>
-                    <td className="py-2.5 pr-2">
+                  <tr key={a.id} className={cx(TR, "group")}>
+                    <td className={TD}>{a.provider}</td>
+                    <td className={TD}>
                       <Badge color={SERVICE_COLOR[a.service]}>{a.service}</Badge>
                     </td>
-                    <td className="py-2.5 pr-2 font-mono text-[11px] text-walnut/60">{a.billingCycle}</td>
-                    <td className="py-2.5 pr-2">
+                    <td className={cx(TD, "font-mono text-[11px] text-ink-2")}>{a.billingCycle}</td>
+                    <td className={TD}>
                       <button
                         onClick={() => accountsApi.update(a.id, { autopay: !a.autopay })}
                         className={cx(
                           "cursor-pointer rounded-full px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider transition",
                           a.autopay
-                            ? "bg-moss/15 text-moss"
-                            : "bg-terracotta/12 text-terracotta hover:bg-terracotta/20",
+                            ? "bg-ok/15 text-ok"
+                            : "bg-bad/12 text-bad hover:bg-bad/20",
                         )}
                       >
                         {a.autopay ? "enrolled" : "not set"}
                       </button>
                     </td>
-                    <td className="py-2.5 pr-2 text-right font-mono text-sm text-walnut">
+                    <td className={cx(TD, "text-right font-mono tabular-nums")}>
                       {a.estMonthly != null ? fmtMoney(a.estMonthly) : "—"}
                     </td>
-                    <td className="py-2.5 pr-2 font-mono text-[11px] text-walnut/60">{a.dueDay ?? "—"}</td>
-                    <td className="max-w-[200px] truncate py-2.5 pr-2 text-[11px] text-walnut/50" title={a.notes ?? ""}>
+                    <td className={cx(TD, "font-mono text-[11px] text-ink-2")}>{a.dueDay ?? "—"}</td>
+                    <td className={cx(TD, "max-w-[200px] truncate text-ink-3")} title={a.notes ?? ""}>
                       {a.notes}
                     </td>
                     <td className="py-2.5 pr-3">
                       <div className="flex justify-end opacity-0 transition group-hover:opacity-100">
-                        <button onClick={() => setEditingId(a.id)} className="cursor-pointer p-1 text-walnut/40 hover:text-walnut">
+                        <button onClick={() => setEditingId(a.id)} className="cursor-pointer p-1 text-ink-3 hover:text-ink">
                           <Pencil size={13} />
                         </button>
-                        <button onClick={() => accountsApi.remove(a.id)} className="cursor-pointer p-1 text-walnut/40 hover:text-terracotta">
+                        <button onClick={() => accountsApi.remove(a.id)} className="cursor-pointer p-1 text-ink-3 hover:text-bad">
                           <Trash2 size={13} />
                         </button>
                       </div>
@@ -309,7 +308,7 @@ export default function BillsPage() {
       )}
 
       {/* Bill ledger */}
-      <h3 className="mb-2 font-mono text-[11px] uppercase tracking-[0.16em] text-dust">
+      <h3 className="mb-2 font-mono text-[11px] uppercase tracking-[0.16em] text-ink-3">
         Bill ledger · actuals
       </h3>
       {billsApi.loading ? (
@@ -323,24 +322,24 @@ export default function BillsPage() {
       ) : (
         <>
         {/* Mobile ledger rows */}
-        <Card className="divide-y divide-walnut/8 md:hidden">
+        <Card className="divide-y divide-line md:hidden">
           {bills.map((b) => (
             <div key={b.id} className="flex items-center gap-3 px-3.5 py-2.5">
               <div className="min-w-0 flex-1">
-                <div className="truncate text-sm text-walnut">{accountName(b.accountId)}</div>
-                <div className="font-mono text-[10px] text-dust">
+                <div className="truncate text-sm text-ink">{accountName(b.accountId)}</div>
+                <div className="font-mono text-[10px] text-ink-3">
                   {b.period}
                   {b.dueDate ? ` · due ${fmtDateShort(b.dueDate)}` : ""}
                 </div>
               </div>
-              <span className="font-mono text-sm text-walnut">{fmtMoney(b.amount)}</span>
+              <span className="font-mono text-sm text-ink tabular-nums">{fmtMoney(b.amount)}</span>
               <button
                 onClick={() =>
                   billsApi.update(b.id, { status: b.status === "paid" ? "pending" : "paid" })
                 }
                 className={cx(
                   "min-h-8 shrink-0 cursor-pointer rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider",
-                  b.status === "paid" ? "bg-moss/15 text-moss" : "bg-gold/15 text-gold",
+                  b.status === "paid" ? "bg-ok/15 text-ok" : "bg-warn/15 text-warn",
                 )}
               >
                 {b.status}
@@ -352,7 +351,7 @@ export default function BillsPage() {
         <Card className="hidden overflow-x-auto md:block">
           <table className="w-full min-w-[560px] border-collapse text-left">
             <thead>
-              <tr className="border-b border-walnut/10 bg-linen/80">
+              <tr className="border-b border-line bg-canvas">
                 <Th>Period</Th>
                 <Th>Account</Th>
                 <Th className="text-right">Amount</Th>
@@ -362,16 +361,16 @@ export default function BillsPage() {
                 <Th className="w-10" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-walnut/6">
+            <tbody>
               {bills.map((b) => (
-                <tr key={b.id} className="group text-sm hover:bg-walnut/[0.03]">
-                  <td className="py-2 pl-3 pr-2 font-mono text-[11px] text-walnut/70">{b.period}</td>
-                  <td className="py-2 pr-2 text-walnut">{accountName(b.accountId)}</td>
-                  <td className="py-2 pr-2 text-right font-mono text-sm text-walnut">{fmtMoney(b.amount)}</td>
-                  <td className="py-2 pr-2 font-mono text-[11px] text-walnut/50">
+                <tr key={b.id} className={cx(TR, "group")}>
+                  <td className={cx(TD, "font-mono text-[11px] text-ink-2")}>{b.period}</td>
+                  <td className={TD}>{accountName(b.accountId)}</td>
+                  <td className={cx(TD, "text-right font-mono tabular-nums")}>{fmtMoney(b.amount)}</td>
+                  <td className={cx(TD, "font-mono text-[11px] text-ink-3")}>
                     {b.dueDate ? fmtDateShort(b.dueDate) : "—"}
                   </td>
-                  <td className="py-2 pr-2">
+                  <td className={TD}>
                     <button
                       onClick={() =>
                         billsApi.update(b.id, { status: b.status === "paid" ? "pending" : "paid" })
@@ -379,18 +378,18 @@ export default function BillsPage() {
                       className={cx(
                         "cursor-pointer rounded-full px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider transition",
                         b.status === "paid"
-                          ? "bg-moss/15 text-moss"
-                          : "bg-gold/15 text-gold hover:bg-gold/25",
+                          ? "bg-ok/15 text-ok"
+                          : "bg-warn/15 text-warn hover:bg-warn/25",
                       )}
                     >
                       {b.status}
                     </button>
                   </td>
-                  <td className="max-w-[180px] truncate py-2 pr-2 text-[11px] text-walnut/50">{b.notes}</td>
+                  <td className={cx(TD, "max-w-[180px] truncate text-ink-3")}>{b.notes}</td>
                   <td className="py-2 pr-3">
                     <button
                       onClick={() => billsApi.remove(b.id)}
-                      className="cursor-pointer p-1 text-walnut/30 opacity-0 transition hover:text-terracotta group-hover:opacity-100"
+                      className="cursor-pointer p-1 text-ink-3 opacity-0 transition hover:text-bad group-hover:opacity-100"
                     >
                       <Trash2 size={13} />
                     </button>
@@ -413,16 +412,7 @@ function Th({
   children?: React.ReactNode;
   className?: string;
 }) {
-  return (
-    <th
-      className={cx(
-        "py-2 pl-3 pr-2 font-mono text-[10px] font-medium uppercase tracking-wider text-dust",
-        className,
-      )}
-    >
-      {children}
-    </th>
-  );
+  return <th className={cx(TH, className)}>{children}</th>;
 }
 
 function AccountEditor({
@@ -445,10 +435,10 @@ function AccountEditor({
   const [notes, setNotes] = useState(account?.notes ?? "");
 
   return (
-    <div className="space-y-2.5 rounded-2xl bg-linen/40 p-4">
+    <div className="space-y-2.5 rounded-lg border border-line bg-canvas p-4">
       <div className="flex items-center gap-2">
         <Input autoFocus value={provider} onChange={(e) => setProvider(e.target.value)} placeholder="Provider" />
-        <button onClick={onCancel} className="cursor-pointer p-1.5 text-walnut/40 hover:text-walnut">
+        <button onClick={onCancel} className="cursor-pointer p-1.5 text-ink-3 hover:text-ink">
           <X size={16} />
         </button>
       </div>
@@ -465,7 +455,7 @@ function AccountEditor({
         </Select>
         <Input type="number" value={estMonthly} onChange={(e) => setEstMonthly(e.target.value)} placeholder="Est $/mo" className="w-28" />
         <Input value={dueDay} onChange={(e) => setDueDay(e.target.value)} placeholder="Due (e.g. ~15th, Nov 15)" className="w-44" />
-        <label className="flex cursor-pointer items-center gap-1.5 text-sm text-walnut/70">
+        <label className="flex cursor-pointer items-center gap-1.5 text-sm text-ink-2">
           <input type="checkbox" checked={autopay} onChange={(e) => setAutopay(e.target.checked)} />
           Autopay
         </label>
@@ -511,7 +501,7 @@ function BillEditor({
   const [notes, setNotes] = useState("");
 
   return (
-    <div className="mb-4 space-y-2.5 rounded-2xl bg-linen/40 p-4">
+    <div className="mb-4 space-y-2.5 rounded-lg border border-line bg-canvas p-4">
       <div className="flex flex-wrap items-center gap-2">
         <Select value={String(accountId)} onChange={(e) => setAccountId(Number(e.target.value))}>
           {accounts.map((a) => (
@@ -521,12 +511,12 @@ function BillEditor({
         <Input value={period} onChange={(e) => setPeriod(e.target.value)} placeholder="YYYY-MM" className="w-28" />
         <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="$ amount" className="w-28" />
         <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="w-auto" />
-        <label className="flex cursor-pointer items-center gap-1.5 text-sm text-walnut/70">
+        <label className="flex cursor-pointer items-center gap-1.5 text-sm text-ink-2">
           <input type="checkbox" checked={paid} onChange={(e) => setPaid(e.target.checked)} />
           Paid
         </label>
         <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes" className="min-w-40 flex-1" />
-        <button onClick={onCancel} className="cursor-pointer p-1.5 text-walnut/40 hover:text-walnut">
+        <button onClick={onCancel} className="cursor-pointer p-1.5 text-ink-3 hover:text-ink">
           <X size={16} />
         </button>
       </div>

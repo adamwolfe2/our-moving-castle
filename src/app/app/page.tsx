@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useMemo } from "react";
-import { AlertTriangle, ArrowRight, Flame, Receipt, Wrench } from "lucide-react";
+import { AlertTriangle, ArrowRight, Receipt, Wrench } from "lucide-react";
 import { useCollection } from "@/lib/useCollection";
 import {
   TASK_CATEGORIES,
@@ -15,7 +15,24 @@ import { CATEGORY_META } from "@/lib/move-data";
 import { MOVE } from "@/lib/move-data";
 import { fmtMoney, fmtDateShort, relativeDay, daysFromToday } from "@/lib/format";
 import { freqLabel, maintStatus, OWNER_DISPLAY } from "@/lib/maintenance";
-import { Badge, Card, Checkbox, ProgressBar, SectionTitle, cx } from "@/components/app/ui";
+import {
+  Badge,
+  type BadgeTone,
+  Card,
+  Checkbox,
+  EmptyState,
+  ProgressBar,
+  SectionTitle,
+  Stat,
+  cx,
+} from "@/components/app/ui";
+
+const MAINT_TONE: Record<string, BadgeTone> = {
+  overdue: "red",
+  "due-soon": "amber",
+  ok: "green",
+  unscheduled: "gray",
+};
 
 export default function Dashboard() {
   const tasksApi = useCollection<Task>("/api/tasks");
@@ -86,54 +103,47 @@ export default function Dashboard() {
     [payments],
   );
 
+  const fullAutopay = accounts.length > 0 && home.autopayOn === accounts.length;
+
   return (
-    <div className="space-y-8">
-      {/* Hero — Home OS */}
-      <Card className="overflow-hidden">
-        <div className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between md:p-8">
-          <div>
-            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-dust">
-              {MOVE.city} · Home OS
-            </div>
-            <h1 className="mt-1 font-serif text-4xl text-walnut md:text-5xl">
-              {MOVE.address}
-            </h1>
-            <p className="mt-2 text-sm text-walnut/60">
-              The castle runs itself — you just check in.
-            </p>
-          </div>
-          <div className="flex items-center gap-4 rounded-2xl bg-walnut px-6 py-4 text-cream">
-            <Flame
-              size={28}
-              className={home.overdue.length ? "text-terracotta" : "text-gold"}
-            />
-            <div>
-              <div className="font-serif text-5xl leading-none">
-                {home.overdue.length}
-              </div>
-              <div className="font-mono text-[11px] uppercase tracking-wider text-cream/60">
-                {home.overdue.length === 1 ? "task overdue" : "tasks overdue"}
-              </div>
-            </div>
-          </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">
+          {MOVE.address}
+        </h1>
+        <p className="mt-0.5 text-[13px] text-ink-3">{MOVE.city} · Home OS</p>
+      </div>
+
+      {/* Stat strip */}
+      <Card>
+        <div className="grid grid-cols-2 divide-x divide-y divide-line md:grid-cols-4 md:divide-y-0">
+          <Stat
+            label="Overdue"
+            value={home.overdue.length}
+            sub={home.overdue.length ? "needs attention" : "all clear"}
+            tone={home.overdue.length ? "bad" : "ok"}
+          />
+          <Stat
+            label="Due in 30d"
+            value={home.due30.length}
+            sub="maintenance"
+            tone={home.due30.length > 0 ? "warn" : "ok"}
+          />
+          <Stat
+            label="Autopay coverage"
+            value={`${home.autopayOn}/${accounts.length || 0}`}
+            sub={fullAutopay ? "fully automated" : "manual gaps"}
+            tone={fullAutopay ? "ok" : "warn"}
+          />
+          <Stat
+            label="Est. monthly cost"
+            value={fmtMoney(home.estMonthly)}
+            sub={`${fmtMoney(MOVE.trueMonthlyCost)}/mo true cost`}
+            tone="info"
+          />
         </div>
       </Card>
-
-      {/* Home OS strip */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat
-          label="Maintenance due · 30d"
-          value={String(home.due30.length)}
-          tone={home.due30.length > 10 ? "terracotta" : undefined}
-        />
-        <Stat
-          label="Autopay coverage"
-          value={`${home.autopayOn}/${accounts.length || "—"}`}
-          tone={accounts.length > 0 && home.autopayOn === accounts.length ? "moss" : "terracotta"}
-        />
-        <Stat label="Est. home cost" value={`${fmtMoney(home.estMonthly)}/mo`} />
-        <Stat label="True monthly cost" value={`${fmtMoney(MOVE.trueMonthlyCost)}/mo`} />
-      </div>
 
       {/* Home OS: maintenance + bills */}
       <div className="grid gap-6 lg:grid-cols-3">
@@ -143,7 +153,7 @@ export default function Dashboard() {
             right={
               <Link
                 href="/app/maintenance"
-                className="flex items-center gap-1 text-xs text-terracotta hover:underline"
+                className="flex min-h-11 items-center gap-1 text-xs text-ink-2 hover:text-ink hover:underline"
               >
                 Full sheet <ArrowRight size={13} />
               </Link>
@@ -152,27 +162,23 @@ export default function Dashboard() {
             Up next · maintenance
           </SectionTitle>
           {home.next.length === 0 ? (
-            <p className="py-6 text-center text-sm text-dust">
+            <EmptyState>
               <Wrench size={15} className="mx-auto mb-1" />
               Nothing scheduled. Seed the sheet or add a task.
-            </p>
+            </EmptyState>
           ) : (
-            <div className="-mx-2">
+            <div>
               {home.next.map((t) => {
                 const st = maintStatus(t.nextDue);
                 return (
                   <Link
                     key={t.id}
                     href="/app/maintenance"
-                    className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-walnut/[0.03]"
+                    className="flex min-h-11 items-center gap-3 border-t border-line px-2 py-2 transition-colors first:border-t-0 hover:bg-canvas"
                   >
-                    <span
-                      className="h-1.5 w-1.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: st.color }}
-                    />
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm text-walnut">{t.task}</div>
-                      <div className="mt-0.5 flex items-center gap-2 font-mono text-[10px] text-dust">
+                      <div className="truncate text-[13px] text-ink">{t.task}</div>
+                      <div className="mt-0.5 flex items-center gap-2 font-mono text-[10px] text-ink-3">
                         <span>{t.category}</span>
                         <span>·</span>
                         <span>{freqLabel(t.intervalMonths)}</span>
@@ -180,14 +186,9 @@ export default function Dashboard() {
                         <span>{OWNER_DISPLAY[t.owner]}</span>
                       </div>
                     </div>
-                    <span
-                      className={cx(
-                        "shrink-0 font-mono text-[10px]",
-                        st.key === "overdue" ? "font-semibold text-terracotta" : "text-dust",
-                      )}
-                    >
-                      {t.nextDue ? relativeDay(t.nextDue) : ""}
-                    </span>
+                    <Badge tone={MAINT_TONE[st.key]} className="shrink-0">
+                      {t.nextDue ? relativeDay(t.nextDue) : "—"}
+                    </Badge>
                   </Link>
                 );
               })}
@@ -201,7 +202,7 @@ export default function Dashboard() {
             right={
               <Link
                 href="/app/bills"
-                className="flex items-center gap-1 text-xs text-terracotta hover:underline"
+                className="flex min-h-11 items-center gap-1 text-xs text-ink-2 hover:text-ink hover:underline"
               >
                 Bills <ArrowRight size={13} />
               </Link>
@@ -209,43 +210,46 @@ export default function Dashboard() {
           >
             Money out
           </SectionTitle>
-          <div className="space-y-2.5">
+          <div>
             {accounts.slice(0, 7).map((a) => (
-              <div key={a.id} className="flex items-center justify-between gap-2">
+              <div
+                key={a.id}
+                className="flex items-center justify-between gap-2 border-t border-line py-2 first:border-t-0"
+              >
                 <div className="min-w-0">
-                  <div className="truncate text-sm text-walnut">{a.provider}</div>
-                  <div className="font-mono text-[10px] text-dust">
+                  <div className="truncate text-[13px] text-ink">{a.provider}</div>
+                  <div className="font-mono text-[10px] text-ink-3">
                     {a.billingCycle}
                     {a.dueDay ? ` · ${a.dueDay}` : ""}
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <span
-                    className={cx(
-                      "rounded-full px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider",
-                      a.autopay ? "bg-moss/15 text-moss" : "bg-terracotta/12 text-terracotta",
-                    )}
-                  >
+                  <Badge tone={a.autopay ? "green" : "amber"}>
                     {a.autopay ? "auto" : "manual"}
-                  </span>
-                  <span className="font-mono text-sm text-walnut">
+                  </Badge>
+                  <span className="text-right font-mono text-[13px] tabular-nums text-ink">
                     {a.estMonthly != null ? fmtMoney(a.estMonthly) : "—"}
                   </span>
                 </div>
               </div>
             ))}
             {home.pendingBills.length > 0 && (
-              <div className="mt-3 border-t border-walnut/8 pt-3">
-                <div className="mb-1.5 font-mono text-[10px] uppercase tracking-wider text-dust">
-                  <Receipt size={11} className="mr-1 inline" /> Pending bills
+              <div className="mt-3 border-t border-line pt-3">
+                <div className="mb-1.5 flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-3">
+                  <Receipt size={11} /> Pending bills
                 </div>
                 {home.pendingBills.map((b) => (
-                  <div key={b.id} className="flex items-center justify-between text-sm">
-                    <span className="text-walnut/70">{b.period}</span>
-                    <span className="font-mono text-walnut">
+                  <div
+                    key={b.id}
+                    className="flex items-center justify-between py-1 text-[13px]"
+                  >
+                    <span className="text-ink-2">{b.period}</span>
+                    <span className="text-right font-mono tabular-nums text-ink">
                       {fmtMoney(b.amount)}
                       {b.dueDate ? (
-                        <span className="ml-1.5 text-[10px] text-dust">{fmtDateShort(b.dueDate)}</span>
+                        <span className="ml-1.5 text-[10px] text-ink-3">
+                          {fmtDateShort(b.dueDate)}
+                        </span>
                       ) : null}
                     </span>
                   </div>
@@ -261,27 +265,29 @@ export default function Dashboard() {
         <SectionTitle
           kicker="Overall"
           right={
-            <span className="font-serif text-3xl text-walnut">{stats.pct}%</span>
+            <span className="text-xl font-semibold tabular-nums tracking-[-0.01em] text-ink">
+              {stats.pct}%
+            </span>
           }
         >
           Move progress
         </SectionTitle>
         <ProgressBar value={stats.pct} />
-        <div className="mt-2 text-xs text-dust">
+        <div className="mt-2 text-xs text-ink-3">
           {stats.done} of {stats.total} tasks complete
         </div>
         <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
           {stats.byCat.map((g) => (
             <div key={g.cat}>
               <div className="mb-1 flex items-center justify-between text-xs">
-                <span className="flex items-center gap-1.5 text-walnut/70">
+                <span className="flex items-center gap-1.5 text-ink-2">
                   <span
                     className="h-1.5 w-1.5 rounded-full"
                     style={{ backgroundColor: CATEGORY_META[g.cat].swatch }}
                   />
                   {CATEGORY_META[g.cat].label}
                 </span>
-                <span className="font-mono text-dust">
+                <span className="font-mono text-ink-3">
                   {g.done}/{g.total}
                 </span>
               </div>
@@ -299,7 +305,7 @@ export default function Dashboard() {
             right={
               <Link
                 href="/app/tasks"
-                className="flex items-center gap-1 text-xs text-terracotta hover:underline"
+                className="flex min-h-11 items-center gap-1 text-xs text-ink-2 hover:text-ink hover:underline"
               >
                 All tasks <ArrowRight size={13} />
               </Link>
@@ -308,17 +314,15 @@ export default function Dashboard() {
             This week · critical path
           </SectionTitle>
           {thisWeek.length === 0 ? (
-            <p className="py-6 text-center text-sm text-dust">
-              Nothing critical outstanding. Breathe.
-            </p>
+            <EmptyState>Nothing critical outstanding. Breathe.</EmptyState>
           ) : (
-            <div className="-mx-2">
+            <div>
               {thisWeek.map((t) => {
                 const overdue = (daysFromToday(t.dueDate) ?? 1) < 0;
                 return (
                   <div
                     key={t.id}
-                    className="flex items-start gap-3 rounded-xl px-2 py-2 hover:bg-walnut/[0.03]"
+                    className="flex min-h-11 items-start gap-3 border-t border-line px-2 py-2 transition-colors first:border-t-0 hover:bg-canvas"
                   >
                     <div className="pt-0.5">
                       <Checkbox
@@ -327,21 +331,21 @@ export default function Dashboard() {
                       />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="text-sm text-walnut">{t.title}</div>
-                      <div className="mt-0.5 flex items-center gap-2">
+                      <div className="text-[13px] text-ink">{t.title}</div>
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5">
                         <Badge color={CATEGORY_META[t.category].swatch}>
                           {CATEGORY_META[t.category].label}
                         </Badge>
                         {t.priority === "critical" && (
-                          <span className="flex items-center gap-0.5 font-mono text-[10px] uppercase text-terracotta">
-                            <AlertTriangle size={11} /> critical
-                          </span>
+                          <Badge tone="red">
+                            <AlertTriangle size={11} /> Critical
+                          </Badge>
                         )}
                         {t.dueDate && (
                           <span
                             className={cx(
                               "font-mono text-[10px]",
-                              overdue ? "font-semibold text-terracotta" : "text-dust",
+                              overdue ? "font-semibold text-bad" : "text-ink-3",
                             )}
                           >
                             {relativeDay(t.dueDate)}
@@ -362,7 +366,7 @@ export default function Dashboard() {
             right={
               <Link
                 href="/app/money"
-                className="flex items-center gap-1 text-xs text-terracotta hover:underline"
+                className="flex min-h-11 items-center gap-1 text-xs text-ink-2 hover:text-ink hover:underline"
               >
                 Money <ArrowRight size={13} />
               </Link>
@@ -370,18 +374,21 @@ export default function Dashboard() {
           >
             Next payments
           </SectionTitle>
-          <div className="space-y-3">
+          <div>
             {upcomingPayments.map((p) => (
-              <div key={p.id} className="flex items-center justify-between gap-2">
+              <div
+                key={p.id}
+                className="flex items-center justify-between gap-2 border-t border-line py-2 first:border-t-0"
+              >
                 <div className="min-w-0">
-                  <div className="truncate text-sm text-walnut">{p.label}</div>
+                  <div className="truncate text-[13px] text-ink">{p.label}</div>
                   {p.dueDate && (
-                    <div className="font-mono text-[10px] text-dust">
+                    <div className="font-mono text-[10px] text-ink-3">
                       {relativeDay(p.dueDate)}
                     </div>
                   )}
                 </div>
-                <div className="font-mono text-sm text-walnut">
+                <div className="text-right font-mono text-[13px] tabular-nums text-ink">
                   {fmtMoney(p.amount)}
                 </div>
               </div>
@@ -390,33 +397,5 @@ export default function Dashboard() {
         </Card>
       </div>
     </div>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone?: "moss" | "terracotta";
-}) {
-  return (
-    <Card className="p-4">
-      <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-dust">
-        {label}
-      </div>
-      <div
-        className={cx(
-          "mt-1 font-serif text-xl md:text-2xl",
-          tone === "moss" && "text-moss",
-          tone === "terracotta" && "text-terracotta",
-          !tone && "text-walnut",
-        )}
-      >
-        {value}
-      </div>
-    </Card>
   );
 }

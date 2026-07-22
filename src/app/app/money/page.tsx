@@ -7,6 +7,7 @@ import { MOVE } from "@/lib/move-data";
 import { fmtMoney, relativeDay } from "@/lib/format";
 import {
   Badge,
+  type BadgeTone,
   Button,
   Card,
   EmptyState,
@@ -16,12 +17,12 @@ import {
   cx,
 } from "@/components/app/ui";
 
-const KIND_COLOR: Record<PaymentKind, string> = {
-  paid: "#6B7A5A",
-  due: "#C26B4A",
-  upcoming: "#C8A96E",
-  planned: "#A89685",
-  monthly: "#5B8AA6",
+const KIND_TONE: Record<PaymentKind, BadgeTone> = {
+  paid: "green",
+  due: "red",
+  upcoming: "amber",
+  planned: "gray",
+  monthly: "blue",
 };
 
 export default function MoneyPage() {
@@ -65,34 +66,36 @@ export default function MoneyPage() {
 
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3">
         <Card className="p-4">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-dust">
+          <div className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-3">
             Paid
           </div>
-          <div className="mt-1 font-serif text-2xl text-moss">{fmtMoney(paid)}</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums tracking-[-0.01em] text-ok">
+            {fmtMoney(paid)}
+          </div>
         </Card>
         <Card className="p-4">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-dust">
+          <div className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-3">
             Still owed
           </div>
-          <div className="mt-1 font-serif text-2xl text-terracotta">
+          <div className="mt-1 text-2xl font-semibold tabular-nums tracking-[-0.01em] text-bad">
             {fmtMoney(remaining)}
           </div>
         </Card>
         <Card className="p-4">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-dust">
+          <div className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-3">
             True monthly
           </div>
-          <div className="mt-1 font-serif text-2xl text-walnut">
+          <div className="mt-1 text-2xl font-semibold tabular-nums tracking-[-0.01em] text-ink">
             {fmtMoney(MOVE.trueMonthlyCost)}
           </div>
         </Card>
       </div>
 
       {/* House Holding callout */}
-      <Card className="mb-8 flex items-start gap-3 border-gold/30 bg-gold/8 p-5">
-        <Landmark size={20} className="mt-0.5 shrink-0 text-gold" />
-        <div className="text-sm text-walnut/80">
-          <span className="font-semibold text-walnut">House Holding account.</span>{" "}
+      <Card className="mb-8 flex items-start gap-3 p-5">
+        <Landmark size={20} className="mt-0.5 shrink-0 text-ink-3" />
+        <div className="text-sm text-ink-2">
+          <span className="font-semibold text-ink">House Holding account.</span>{" "}
           Auto-transfer ~{fmtMoney(MOVE.houseHoldingMonthly)}/mo for tax + insurance
           accruals. Pay the annual lumps from it (tax ~{fmtMoney(MOVE.taxAnnualEst)} in
           Nov, insurance {fmtMoney(MOVE.insuranceAnnual)} in June). Checking only ever
@@ -110,13 +113,13 @@ export default function MoneyPage() {
         />
       )}
 
-      <h3 className="mb-2 font-mono text-[11px] uppercase tracking-[0.16em] text-dust">
+      <h3 className="mb-2 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-ink-3">
         One-time
       </h3>
       {loading ? (
         <EmptyState>Loading…</EmptyState>
       ) : (
-        <Card className="mb-8 divide-y divide-walnut/8">
+        <Card className="mb-8 divide-y divide-line">
           {oneTime.map((p) =>
             editingId === p.id ? (
               <PaymentEditor
@@ -131,17 +134,17 @@ export default function MoneyPage() {
             ) : (
               <div
                 key={p.id}
-                className="group flex items-center gap-3 px-4 py-3 hover:bg-walnut/[0.03]"
+                className="group flex items-center gap-3 px-4 py-2 hover:bg-canvas"
               >
                 <button
                   onClick={() =>
                     update(p.id, { kind: p.kind === "paid" ? "due" : "paid" })
                   }
                   className={cx(
-                    "flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-md border transition",
+                    "flex h-5 w-5 min-h-0 shrink-0 cursor-pointer items-center justify-center rounded-[5px] border transition",
                     p.kind === "paid"
-                      ? "border-moss bg-moss text-cream"
-                      : "border-walnut/25 text-transparent hover:border-moss/60",
+                      ? "border-ok bg-ok text-white"
+                      : "border-line-strong text-transparent hover:border-ink-3",
                   )}
                 >
                   <Check size={13} strokeWidth={3} />
@@ -149,39 +152,39 @@ export default function MoneyPage() {
                 <div className="min-w-0 flex-1">
                   <div
                     className={cx(
-                      "text-sm",
-                      p.kind === "paid" ? "text-dust" : "text-walnut",
+                      "text-[13px]",
+                      p.kind === "paid" ? "text-ink-3" : "text-ink",
                     )}
                   >
                     {p.label}
                   </div>
                   <div className="mt-0.5 flex items-center gap-2">
-                    <Badge color={KIND_COLOR[p.kind]}>{p.kind}</Badge>
+                    <Badge tone={KIND_TONE[p.kind]}>{p.kind}</Badge>
                     {p.dueDate && (
-                      <span className="font-mono text-[10px] text-dust">
+                      <span className="font-mono text-[10px] text-ink-3">
                         {relativeDay(p.dueDate)}
                       </span>
                     )}
                     {p.notes && (
-                      <span className="truncate text-[11px] text-walnut/50">
+                      <span className="truncate text-[11px] text-ink-3">
                         {p.notes}
                       </span>
                     )}
                   </div>
                 </div>
-                <div className="font-mono text-sm text-walnut">
+                <div className="font-mono text-[13px] tabular-nums text-ink">
                   {fmtMoney(p.amount)}
                 </div>
-                <div className="flex opacity-0 transition group-hover:opacity-100">
+                <div className="flex opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
                   <button
                     onClick={() => setEditingId(p.id)}
-                    className="cursor-pointer p-1.5 text-walnut/40 hover:text-walnut"
+                    className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center text-ink-3 hover:text-ink sm:min-h-0 sm:min-w-0 sm:p-1.5"
                   >
                     <Pencil size={14} />
                   </button>
                   <button
                     onClick={() => remove(p.id)}
-                    className="cursor-pointer p-1.5 text-walnut/40 hover:text-terracotta"
+                    className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center text-ink-3 hover:text-bad sm:min-h-0 sm:min-w-0 sm:p-1.5"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -193,31 +196,31 @@ export default function MoneyPage() {
       )}
 
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="font-mono text-[11px] uppercase tracking-[0.16em] text-dust">
+        <h3 className="font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-ink-3">
           Monthly true cost of ownership
         </h3>
-        <span className="font-mono text-sm text-walnut">
+        <span className="font-mono text-[13px] tabular-nums text-ink">
           {fmtMoney(monthlyTotal)}/mo
         </span>
       </div>
-      <Card className="divide-y divide-walnut/8">
+      <Card className="divide-y divide-line">
         {monthly.map((p) => (
           <div
             key={p.id}
-            className="group flex items-center gap-3 px-4 py-2.5 hover:bg-walnut/[0.03]"
+            className="group flex items-center gap-3 px-4 py-2 hover:bg-canvas"
           >
             <div className="min-w-0 flex-1">
-              <span className="text-sm text-walnut">{p.label}</span>
+              <span className="text-[13px] text-ink">{p.label}</span>
               {p.notes && (
-                <span className="ml-2 text-[11px] text-dust">{p.notes}</span>
+                <span className="ml-2 text-[11px] text-ink-3">{p.notes}</span>
               )}
             </div>
-            <span className="font-mono text-sm text-walnut">
+            <span className="font-mono text-[13px] tabular-nums text-ink">
               {fmtMoney(p.amount)}
             </span>
             <button
               onClick={() => remove(p.id)}
-              className="cursor-pointer p-1 text-walnut/30 opacity-0 transition hover:text-terracotta group-hover:opacity-100"
+              className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center text-ink-3 opacity-100 transition hover:text-bad sm:min-h-0 sm:min-w-0 sm:p-1 sm:opacity-0 sm:group-hover:opacity-100"
             >
               <Trash2 size={14} />
             </button>
@@ -255,7 +258,7 @@ function PaymentEditor({
   }
 
   return (
-    <div className="mb-6 space-y-2.5 rounded-2xl bg-linen/40 p-4">
+    <div className="mb-6 space-y-2.5 rounded-[10px] border border-line bg-canvas p-4">
       <div className="flex items-center gap-2">
         <Input
           autoFocus
@@ -265,7 +268,7 @@ function PaymentEditor({
         />
         <button
           onClick={onCancel}
-          className="cursor-pointer p-1.5 text-walnut/40 hover:text-walnut"
+          className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center text-ink-3 hover:text-ink sm:min-h-0 sm:min-w-0 sm:p-1.5"
         >
           <X size={16} />
         </button>

@@ -22,16 +22,29 @@ import { fmtDateShort, todayISO } from "@/lib/format";
 import { freqLabel, maintStatus, OWNER_DISPLAY } from "@/lib/maintenance";
 import {
   Badge,
+  type BadgeTone,
   Button,
   Card,
   EmptyState,
   Input,
   Select,
   SectionTitle,
+  Stat,
+  TD,
+  TH,
+  TR,
   cx,
 } from "@/components/app/ui";
 
 type SortKey = "task" | "category" | "intervalMonths" | "nextDue" | "owner";
+
+// Presentational mapping only — status logic still lives in maintStatus().
+function statusTone(key: string): BadgeTone {
+  if (key === "overdue") return "red";
+  if (key === "due-soon") return "amber";
+  if (key === "ok") return "green";
+  return "gray";
+}
 
 export default function MaintenancePage() {
   const api = useCollection<MaintenanceTask>("/api/maintenance");
@@ -118,21 +131,26 @@ export default function MaintenancePage() {
       </SectionTitle>
 
       {/* Stat strip */}
-      <div className="mb-4 grid grid-cols-3 gap-3">
-        <Card className="p-3.5">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-dust">Overdue</div>
-          <div className={cx("mt-0.5 font-serif text-2xl", counts.overdue ? "text-terracotta" : "text-moss")}>
-            {counts.overdue}
-          </div>
-        </Card>
-        <Card className="p-3.5">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-dust">Due in 14 days</div>
-          <div className="mt-0.5 font-serif text-2xl text-gold">{counts.dueSoon}</div>
-        </Card>
-        <Card className="p-3.5">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-dust">Active tasks</div>
-          <div className="mt-0.5 font-serif text-2xl text-walnut">{counts.total}</div>
-        </Card>
+      <div className="mb-4 grid grid-cols-2 gap-px overflow-hidden rounded-[10px] border border-line bg-line shadow-[0_1px_2px_rgba(0,0,0,0.03)] sm:grid-cols-3">
+        <Stat
+          className="bg-surface"
+          label="Overdue"
+          value={counts.overdue}
+          tone={counts.overdue ? "bad" : "ok"}
+          sub={counts.overdue ? "needs attention" : "all clear"}
+        />
+        <Stat
+          className="bg-surface"
+          label="Due in 14 days"
+          value={counts.dueSoon}
+          tone={counts.dueSoon ? "warn" : undefined}
+          sub={counts.dueSoon ? "coming up" : undefined}
+        />
+        <Stat
+          className="col-span-2 bg-surface sm:col-span-1"
+          label="Active tasks"
+          value={counts.total}
+        />
       </div>
 
       {/* Filter bar */}
@@ -161,7 +179,7 @@ export default function MaintenancePage() {
             <option key={o} value={o}>{OWNER_DISPLAY[o]}</option>
           ))}
         </Select>
-        <span className="ml-auto font-mono text-[10px] text-dust">
+        <span className="ml-auto font-mono text-[10px] text-ink-3">
           {rows.length} of {counts.total}
         </span>
       </div>
@@ -211,15 +229,15 @@ export default function MaintenancePage() {
                     className={cx(
                       "mt-0.5 flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border transition",
                       loggingId === t.id
-                        ? "border-moss bg-moss text-cream"
-                        : "border-walnut/20 text-walnut/25 active:border-moss",
+                        ? "border-ok bg-ok text-white"
+                        : "border-line-strong text-ink-3 active:border-ok",
                     )}
                   >
                     <Check size={18} strokeWidth={2.5} />
                   </button>
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm leading-snug text-walnut">{t.task}</div>
-                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-[10px] text-dust">
+                    <div className="text-sm leading-snug text-ink">{t.task}</div>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-[10px] text-ink-3">
                       <span>{t.category}</span>
                       <span>·</span>
                       <span>{freqLabel(t.intervalMonths)}</span>
@@ -228,7 +246,7 @@ export default function MaintenancePage() {
                       {t.nextDue && (
                         <>
                           <span>·</span>
-                          <span className={st.key === "overdue" ? "font-semibold text-terracotta" : ""}>
+                          <span className={st.key === "overdue" ? "font-semibold text-bad" : ""}>
                             due {fmtDateShort(t.nextDue)}
                           </span>
                         </>
@@ -236,7 +254,7 @@ export default function MaintenancePage() {
                     </div>
                   </div>
                   <div className="flex shrink-0 flex-col items-end gap-1.5">
-                    <Badge color={st.color}>
+                    <Badge tone={statusTone(st.key)}>
                       {st.key === "overdue" && st.days != null
                         ? `${Math.abs(st.days)}d over`
                         : st.key === "due-soon" && st.days != null
@@ -246,14 +264,14 @@ export default function MaintenancePage() {
                     <div className="flex">
                       <button
                         onClick={() => setEditingId(t.id)}
-                        className="cursor-pointer p-2 text-walnut/35 active:text-walnut"
+                        className="cursor-pointer p-2 text-ink-3 active:text-ink"
                         aria-label="Edit"
                       >
                         <Pencil size={14} />
                       </button>
                       <button
                         onClick={() => api.remove(t.id)}
-                        className="cursor-pointer p-2 text-walnut/35 active:text-terracotta"
+                        className="cursor-pointer p-2 text-ink-3 active:text-bad"
                         aria-label="Delete"
                       >
                         <Trash2 size={14} />
@@ -262,7 +280,7 @@ export default function MaintenancePage() {
                   </div>
                 </div>
                 {loggingId === t.id && (
-                  <div className="mt-2 rounded-xl bg-moss/5">
+                  <div className="mt-2 rounded-xl bg-ok/5">
                     <CompleteRow
                       onCancel={() => setLoggingId(null)}
                       onSave={async (data) => {
@@ -280,7 +298,7 @@ export default function MaintenancePage() {
         <Card className="hidden overflow-x-auto md:block">
           <table className="w-full min-w-[860px] border-collapse text-left">
             <thead className="sticky top-0 z-10">
-              <tr className="border-b border-walnut/10 bg-linen/80 backdrop-blur">
+              <tr className="border-b border-line bg-canvas">
                 <Th className="w-8" />
                 <Th onClick={() => toggleSort("task")} active={sort === "task"} dir={dir}>Task</Th>
                 <Th onClick={() => toggleSort("category")} active={sort === "category"} dir={dir}>Category</Th>
@@ -294,12 +312,12 @@ export default function MaintenancePage() {
                 <Th className="w-16" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-walnut/6">
+            <tbody>
               {rows.map((t) => {
                 const st = maintStatus(t.nextDue);
                 if (editingId === t.id) {
                   return (
-                    <tr key={t.id}>
+                    <tr key={t.id} className="border-t border-line">
                       <td colSpan={11} className="p-0">
                         <TaskEditor
                           task={t}
@@ -315,7 +333,7 @@ export default function MaintenancePage() {
                 }
                 return (
                   <Fragment key={t.id}>
-                    <tr className="group text-sm hover:bg-walnut/[0.03]">
+                    <tr className={cx(TR, "group")}>
                       <td className="py-2 pl-3">
                         <button
                           title="Mark complete"
@@ -323,32 +341,32 @@ export default function MaintenancePage() {
                           className={cx(
                             "flex h-5 w-5 cursor-pointer items-center justify-center rounded-md border transition",
                             loggingId === t.id
-                              ? "border-moss bg-moss text-cream"
-                              : "border-walnut/25 text-transparent hover:border-moss/60 hover:text-moss/50",
+                              ? "border-ok bg-ok text-white"
+                              : "border-line-strong text-transparent hover:border-ok/60 hover:text-ok/50",
                           )}
                         >
                           <Check size={13} strokeWidth={3} />
                         </button>
                       </td>
-                      <td className="max-w-[280px] py-2 pr-2">
-                        <div className="truncate text-walnut" title={t.notes ?? t.task}>{t.task}</div>
+                      <td className={cx(TD, "max-w-[280px]")}>
+                        <div className="truncate" title={t.notes ?? t.task}>{t.task}</div>
                         {t.notes && (
-                          <div className="truncate text-[10px] text-dust" title={t.notes}>{t.notes}</div>
+                          <div className="truncate text-[10px] text-ink-3" title={t.notes}>{t.notes}</div>
                         )}
                       </td>
-                      <td className="py-2 pr-2 text-xs text-walnut/70">{t.category}</td>
-                      <td className="max-w-[110px] truncate py-2 pr-2 text-xs text-walnut/50">{t.area}</td>
-                      <td className="py-2 pr-2 font-mono text-[11px] text-walnut/70">{freqLabel(t.intervalMonths)}</td>
-                      <td className="py-2 pr-2 text-xs text-walnut/70">{OWNER_DISPLAY[t.owner]}</td>
-                      <td className="py-2 pr-2 text-right font-mono text-[11px] text-walnut/50">{t.estMinutes ?? "—"}</td>
-                      <td className="py-2 pr-2 font-mono text-[11px] text-walnut/50">
+                      <td className={cx(TD, "text-ink-2")}>{t.category}</td>
+                      <td className={cx(TD, "max-w-[110px] truncate text-ink-3")}>{t.area}</td>
+                      <td className={cx(TD, "font-mono text-[11px] text-ink-2")}>{freqLabel(t.intervalMonths)}</td>
+                      <td className={cx(TD, "text-ink-2")}>{OWNER_DISPLAY[t.owner]}</td>
+                      <td className={cx(TD, "text-right font-mono text-[11px] text-ink-3 tabular-nums")}>{t.estMinutes ?? "—"}</td>
+                      <td className={cx(TD, "font-mono text-[11px] text-ink-3 tabular-nums")}>
                         {t.lastDone ? fmtDateShort(t.lastDone) : "—"}
                       </td>
-                      <td className="py-2 pr-2 font-mono text-[11px] text-walnut">
+                      <td className={cx(TD, "font-mono text-[11px] tabular-nums")}>
                         {t.nextDue ? fmtDateShort(t.nextDue) : "—"}
                       </td>
-                      <td className="py-2 pr-2">
-                        <Badge color={st.color}>
+                      <td className={TD}>
+                        <Badge tone={statusTone(st.key)}>
                           {st.key === "overdue" && st.days != null
                             ? `${Math.abs(st.days)}d over`
                             : st.key === "due-soon" && st.days != null
@@ -360,13 +378,13 @@ export default function MaintenancePage() {
                         <div className="flex justify-end opacity-0 transition group-hover:opacity-100">
                           <button
                             onClick={() => setEditingId(t.id)}
-                            className="cursor-pointer p-1 text-walnut/40 hover:text-walnut"
+                            className="cursor-pointer p-1 text-ink-3 hover:text-ink"
                           >
                             <Pencil size={13} />
                           </button>
                           <button
                             onClick={() => api.remove(t.id)}
-                            className="cursor-pointer p-1 text-walnut/40 hover:text-terracotta"
+                            className="cursor-pointer p-1 text-ink-3 hover:text-bad"
                           >
                             <Trash2 size={13} />
                           </button>
@@ -374,8 +392,8 @@ export default function MaintenancePage() {
                       </td>
                     </tr>
                     {loggingId === t.id && (
-                      <tr>
-                        <td colSpan={11} className="bg-moss/5 p-0">
+                      <tr className="border-t border-line">
+                        <td colSpan={11} className="bg-ok/5 p-0">
                           <CompleteRow
                             onCancel={() => setLoggingId(null)}
                             onSave={async (data) => {
@@ -415,8 +433,9 @@ function Th({
     <th
       onClick={onClick}
       className={cx(
-        "py-2 pl-3 pr-2 font-mono text-[10px] font-medium uppercase tracking-wider text-dust first:pl-3",
-        onClick && "cursor-pointer select-none hover:text-walnut",
+        TH,
+        "first:pl-3",
+        onClick && "cursor-pointer select-none hover:text-ink",
         className,
       )}
     >
@@ -448,7 +467,7 @@ function CompleteRow({
 
   return (
     <div className="flex flex-wrap items-center gap-2 px-4 py-2.5">
-      <span className="font-mono text-[10px] uppercase tracking-wider text-moss">Log completion</span>
+      <span className="font-mono text-[10px] uppercase tracking-wider text-ok">Log completion</span>
       <Input type="date" value={doneDate} onChange={(e) => setDoneDate(e.target.value)} className="w-auto" />
       <Input type="number" value={cost} onChange={(e) => setCost(e.target.value)} placeholder="$ cost" className="w-24" />
       <Input value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Vendor" className="w-36" />
@@ -493,10 +512,10 @@ function TaskEditor({
   const [notes, setNotes] = useState(task?.notes ?? "");
 
   return (
-    <div className="space-y-2.5 rounded-2xl bg-linen/40 p-4">
+    <div className="space-y-2.5 rounded-lg border border-line bg-canvas p-4">
       <div className="flex items-center gap-2">
         <Input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="Task" />
-        <button onClick={onCancel} className="cursor-pointer p-1.5 text-walnut/40 hover:text-walnut">
+        <button onClick={onCancel} className="cursor-pointer p-1.5 text-ink-3 hover:text-ink">
           <X size={16} />
         </button>
       </div>

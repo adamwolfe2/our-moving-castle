@@ -60,7 +60,7 @@ export default function BudgetPage() {
       >
         Move-In Budget
       </SectionTitle>
-      <p className="mb-6 max-w-xl text-sm text-dust">
+      <p className="mb-6 max-w-xl text-sm text-ink-3">
         Set a target for each envelope and adjust as real bills land. Shopping and
         Marketplace totals flow in live. (Excludes the all-cash house price and annual
         property tax — those are tracked in Money.)
@@ -70,29 +70,29 @@ export default function BudgetPage() {
       <Card className="mb-6 p-6">
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-wider text-dust">
+            <div className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-3">
               Budget (planned)
             </div>
-            <div className="mt-1 font-serif text-2xl text-walnut">
+            <div className="mt-1 text-2xl font-semibold tabular-nums tracking-[-0.01em] text-ink">
               {fmtMoney(totalPlanned)}
             </div>
           </div>
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-wider text-dust">
+            <div className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-3">
               Committed (live)
             </div>
-            <div className="mt-1 font-serif text-2xl text-terracotta">
+            <div className="mt-1 text-2xl font-semibold tabular-nums tracking-[-0.01em] text-bad">
               {fmtMoney(totalActual)}
             </div>
           </div>
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-wider text-dust">
+            <div className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-3">
               {remaining >= 0 ? "Remaining" : "Over budget"}
             </div>
             <div
               className={cx(
-                "mt-1 font-serif text-2xl",
-                remaining >= 0 ? "text-moss" : "text-terracotta",
+                "mt-1 text-2xl font-semibold tabular-nums tracking-[-0.01em]",
+                remaining >= 0 ? "text-ok" : "text-bad",
               )}
             >
               {fmtMoney(Math.abs(remaining))}
@@ -101,7 +101,7 @@ export default function BudgetPage() {
         </div>
         <div className="mt-4">
           <ProgressBar value={pct} />
-          <div className="mt-1.5 text-xs text-dust">
+          <div className="mt-1.5 text-xs text-ink-3">
             {pct}% of budget committed
           </div>
         </div>
@@ -120,9 +120,9 @@ export default function BudgetPage() {
       {budget.loading ? (
         <EmptyState>Loading…</EmptyState>
       ) : (
-        <Card className="divide-y divide-walnut/8">
+        <Card className="divide-y divide-line">
           {/* header */}
-          <div className="hidden grid-cols-[1fr_110px_110px_110px_70px] gap-2 px-4 py-2 font-mono text-[10px] uppercase tracking-wider text-dust sm:grid">
+          <div className="hidden grid-cols-[1fr_110px_110px_110px_70px] gap-2 px-4 py-2 font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-ink-3 sm:grid">
             <span>Envelope</span>
             <span className="text-right">Planned</span>
             <span className="text-right">Actual</span>
@@ -179,46 +179,46 @@ function BudgetRow({
 }) {
   const left = line.planned - actual;
   return (
-    <div className="group grid grid-cols-[1fr_auto] gap-2 px-4 py-3 hover:bg-walnut/[0.03] sm:grid-cols-[1fr_110px_110px_110px_70px] sm:items-center">
+    <div className="group grid grid-cols-[1fr_auto] gap-2 px-4 py-3 hover:bg-canvas sm:grid-cols-[1fr_110px_110px_110px_70px] sm:items-center">
       <div className="min-w-0">
-        <div className="flex items-center gap-1.5 text-sm text-walnut">
+        <div className="flex items-center gap-1.5 text-[13px] text-ink">
           {line.name}
           {line.source !== "manual" && (
-            <Badge color="#5B8AA6">
+            <Badge tone="blue">
               <Link2 size={9} /> live
             </Badge>
           )}
         </div>
         {line.notes && (
-          <div className="text-[11px] text-dust">{line.notes}</div>
+          <div className="text-[11px] text-ink-3">{line.notes}</div>
         )}
       </div>
       <NumberCell value={line.planned} onSave={onPlanned} />
       {onActual ? (
         <NumberCell value={actual} onSave={onActual} />
       ) : (
-        <div className="text-right font-mono text-sm text-terracotta">
+        <div className="text-right font-mono text-[13px] tabular-nums text-bad">
           {fmtMoney(actual)}
         </div>
       )}
       <div
         className={cx(
-          "text-right font-mono text-sm",
-          left < 0 ? "text-terracotta" : "text-moss",
+          "text-right font-mono text-[13px] tabular-nums",
+          left < 0 ? "text-bad" : "text-ok",
         )}
       >
         {fmtMoney(left)}
       </div>
-      <div className="flex justify-end opacity-0 transition group-hover:opacity-100">
+      <div className="flex justify-end opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
         <button
           onClick={onEdit}
-          className="cursor-pointer p-1.5 text-walnut/40 hover:text-walnut"
+          className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center text-ink-3 hover:text-ink sm:min-h-0 sm:min-w-0 sm:p-1.5"
         >
           <Pencil size={14} />
         </button>
         <button
           onClick={onDelete}
-          className="cursor-pointer p-1.5 text-walnut/40 hover:text-terracotta"
+          className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center text-ink-3 hover:text-bad sm:min-h-0 sm:min-w-0 sm:p-1.5"
         >
           <Trash2 size={14} />
         </button>
@@ -249,7 +249,7 @@ function NumberCell({
           if (Number.isFinite(n) && n !== value) onSave(n);
         }}
         onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
-        className="w-full rounded-lg border border-terracotta/40 bg-white px-2 py-1 text-right font-mono text-sm outline-none sm:w-[110px]"
+        className="w-full rounded-lg border border-ink/30 bg-surface px-2 py-1 text-right font-mono text-sm tabular-nums outline-none focus:border-line-strong focus:ring-2 focus:ring-ink/8 sm:w-[110px]"
       />
     );
   }
@@ -259,7 +259,7 @@ function NumberCell({
         setVal(String(value));
         setEditing(true);
       }}
-      className="cursor-pointer text-right font-mono text-sm text-walnut hover:text-terracotta"
+      className="cursor-pointer text-right font-mono text-[13px] tabular-nums text-ink hover:text-ink-2"
     >
       {fmtMoney(value)}
     </button>
@@ -291,7 +291,7 @@ function BudgetEditor({
   }
 
   return (
-    <div className="space-y-2.5 bg-linen/40 p-4">
+    <div className="space-y-2.5 border-b border-line bg-canvas p-4">
       <div className="flex items-center gap-2">
         <Input
           autoFocus
@@ -301,7 +301,7 @@ function BudgetEditor({
         />
         <button
           onClick={onCancel}
-          className="cursor-pointer p-1.5 text-walnut/40 hover:text-walnut"
+          className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center text-ink-3 hover:text-ink sm:min-h-0 sm:min-w-0 sm:p-1.5"
         >
           <X size={16} />
         </button>
