@@ -15,6 +15,8 @@ import {
   Store,
   Wallet,
   Flame,
+  Wrench,
+  Receipt,
 } from "lucide-react";
 import { cx } from "./ui";
 import { MOVE, daysUntilMoveIn } from "@/lib/move-data";
@@ -22,6 +24,8 @@ import { MOVE, daysUntilMoveIn } from "@/lib/move-data";
 const NAV = [
   { href: "/app", label: "Dashboard", icon: LayoutDashboard },
   { href: "/app/calendar", label: "Calendar", icon: CalendarDays },
+  { href: "/app/maintenance", label: "Maintenance", icon: Wrench },
+  { href: "/app/bills", label: "Bills", icon: Receipt },
   { href: "/app/tasks", label: "Tasks", icon: ListChecks },
   { href: "/app/cleaning", label: "Cleaning", icon: Sparkles },
   { href: "/app/shopping", label: "Shopping", icon: ShoppingCart },

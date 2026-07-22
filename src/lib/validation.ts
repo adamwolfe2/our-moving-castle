@@ -109,6 +109,54 @@ export const documentUpdate = z
   })
   .partial();
 
+export const maintenanceTaskCreate = z.object({
+  task: z.string().trim().min(1).max(300),
+  category: z.string().trim().min(1).max(60).default("Interior"),
+  area: nullableStr,
+  intervalMonths: z.number().int().min(1).max(240).default(12),
+  estMinutes: z.number().int().nonnegative().optional().nullable(),
+  owner: z.enum(["adam", "mel", "professional"]).default("adam"),
+  notes: nullableStr,
+  lastDone: nullableDate,
+  nextDue: nullableDate,
+  active: z.boolean().default(true),
+  sortOrder: z.number().int().optional(),
+});
+export const maintenanceTaskUpdate = maintenanceTaskCreate.partial();
+
+export const maintenanceComplete = z.object({
+  doneDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  cost: z.number().int().nonnegative().optional().nullable(),
+  vendor: nullableStr,
+  notes: nullableStr,
+});
+
+export const homeAccountCreate = z.object({
+  provider: z.string().trim().min(1).max(200),
+  service: z
+    .enum(["gas", "electric", "water", "internet", "garbage", "insurance", "tax", "other"])
+    .default("other"),
+  billingCycle: z.enum(["monthly", "quarterly", "annual"]).default("monthly"),
+  autopay: z.boolean().default(false),
+  dueDay: nullableStr,
+  estMonthly: z.number().int().nonnegative().optional().nullable(),
+  accountRef: nullableStr,
+  portalUrl: nullableStr,
+  notes: nullableStr,
+  sortOrder: z.number().int().optional(),
+});
+export const homeAccountUpdate = homeAccountCreate.partial();
+
+export const homeBillCreate = z.object({
+  accountId: z.number().int().optional().nullable(),
+  period: z.string().trim().regex(/^\d{4}-\d{2}$/),
+  amount: z.number().int().default(0),
+  dueDate: nullableDate,
+  status: z.enum(["pending", "paid"]).default("pending"),
+  notes: nullableStr,
+});
+export const homeBillUpdate = homeBillCreate.partial();
+
 export const dailyLogCreate = z.object({
   logDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   mood: nullableStr,

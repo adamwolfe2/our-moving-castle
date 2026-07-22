@@ -1,23 +1,49 @@
 "use client";
 import Link from "next/link";
 import { useMemo } from "react";
-import { AlertTriangle, ArrowRight, Flame } from "lucide-react";
+import { AlertTriangle, ArrowRight, Flame, Receipt, Wrench } from "lucide-react";
 import { useCollection } from "@/lib/useCollection";
 import {
   TASK_CATEGORIES,
+  type HomeAccount,
+  type HomeBill,
+  type MaintenanceTask,
   type Payment,
   type Task,
 } from "@/lib/constants";
 import { CATEGORY_META } from "@/lib/move-data";
-import { MOVE, daysUntilMoveIn } from "@/lib/move-data";
-import { fmtMoney, relativeDay, daysFromToday } from "@/lib/format";
+import { MOVE } from "@/lib/move-data";
+import { fmtMoney, fmtDateShort, relativeDay, daysFromToday } from "@/lib/format";
+import { freqLabel, maintStatus, OWNER_DISPLAY } from "@/lib/maintenance";
 import { Badge, Card, Checkbox, ProgressBar, SectionTitle, cx } from "@/components/app/ui";
 
 export default function Dashboard() {
   const tasksApi = useCollection<Task>("/api/tasks");
   const { items: payments } = useCollection<Payment>("/api/payments");
+  const { items: maint } = useCollection<MaintenanceTask>("/api/maintenance");
+  const { items: accounts } = useCollection<HomeAccount>("/api/home-accounts");
+  const { items: bills } = useCollection<HomeBill>("/api/home-bills");
   const tasks = tasksApi.items;
-  const days = daysUntilMoveIn();
+
+  const home = useMemo(() => {
+    const active = maint.filter((t) => t.active);
+    const overdue = active.filter((t) => maintStatus(t.nextDue).key === "overdue");
+    const due30 = active.filter((t) => {
+      const d = daysFromToday(t.nextDue);
+      return d != null && d >= 0 && d <= 30;
+    });
+    const next = [...active]
+      .filter((t) => t.nextDue)
+      .sort((a, b) => (a.nextDue ?? "").localeCompare(b.nextDue ?? ""))
+      .slice(0, 7);
+    const estMonthly = accounts.reduce((s, a) => s + (a.estMonthly ?? 0), 0);
+    const autopayOn = accounts.filter((a) => a.autopay).length;
+    const pendingBills = bills
+      .filter((b) => b.status === "pending")
+      .sort((a, b) => (a.dueDate ?? "9999").localeCompare(b.dueDate ?? "9999"))
+      .slice(0, 4);
+    return { overdue, due30, next, estMonthly, autopayOn, pendingBills };
+  }, [maint, accounts, bills]);
 
   const stats = useMemo(() => {
     const total = tasks.length;
@@ -62,40 +88,172 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Hero */}
+      {/* Hero — Home OS */}
       <Card className="overflow-hidden">
         <div className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between md:p-8">
           <div>
             <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-dust">
-              {MOVE.city} · Closing & Move
+              {MOVE.city} · Home OS
             </div>
             <h1 className="mt-1 font-serif text-4xl text-walnut md:text-5xl">
               {MOVE.address}
             </h1>
             <p className="mt-2 text-sm text-walnut/60">
-              Keys & possession Wednesday, June 17 at {MOVE.closeTime}.
+              The castle runs itself — you just check in.
             </p>
           </div>
           <div className="flex items-center gap-4 rounded-2xl bg-walnut px-6 py-4 text-cream">
-            <Flame size={28} className="text-terracotta" />
+            <Flame
+              size={28}
+              className={home.overdue.length ? "text-terracotta" : "text-gold"}
+            />
             <div>
               <div className="font-serif text-5xl leading-none">
-                {days > 0 ? days : days === 0 ? "0" : "✓"}
+                {home.overdue.length}
               </div>
               <div className="font-mono text-[11px] uppercase tracking-wider text-cream/60">
-                {days > 0 ? "days to keys" : days === 0 ? "move day" : "moved in"}
+                {home.overdue.length === 1 ? "task overdue" : "tasks overdue"}
               </div>
             </div>
           </div>
         </div>
       </Card>
 
-      {/* Money strip */}
+      {/* Home OS strip */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat label="Paid to date" value={fmtMoney(MOVE.paidToDate)} tone="moss" />
-        <Stat label="Out-of-pocket ahead" value={`~${fmtMoney(MOVE.outOfPocketAhead)}`} tone="terracotta" />
-        <Stat label="Balance at closing" value={fmtMoney(MOVE.balanceAtClosing)} />
+        <Stat
+          label="Maintenance due · 30d"
+          value={String(home.due30.length)}
+          tone={home.due30.length > 10 ? "terracotta" : undefined}
+        />
+        <Stat
+          label="Autopay coverage"
+          value={`${home.autopayOn}/${accounts.length || "—"}`}
+          tone={accounts.length > 0 && home.autopayOn === accounts.length ? "moss" : "terracotta"}
+        />
+        <Stat label="Est. home cost" value={`${fmtMoney(home.estMonthly)}/mo`} />
         <Stat label="True monthly cost" value={`${fmtMoney(MOVE.trueMonthlyCost)}/mo`} />
+      </div>
+
+      {/* Home OS: maintenance + bills */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="p-6 lg:col-span-2">
+          <SectionTitle
+            kicker="Synced from the maintenance sheet"
+            right={
+              <Link
+                href="/app/maintenance"
+                className="flex items-center gap-1 text-xs text-terracotta hover:underline"
+              >
+                Full sheet <ArrowRight size={13} />
+              </Link>
+            }
+          >
+            Up next · maintenance
+          </SectionTitle>
+          {home.next.length === 0 ? (
+            <p className="py-6 text-center text-sm text-dust">
+              <Wrench size={15} className="mx-auto mb-1" />
+              Nothing scheduled. Seed the sheet or add a task.
+            </p>
+          ) : (
+            <div className="-mx-2">
+              {home.next.map((t) => {
+                const st = maintStatus(t.nextDue);
+                return (
+                  <Link
+                    key={t.id}
+                    href="/app/maintenance"
+                    className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-walnut/[0.03]"
+                  >
+                    <span
+                      className="h-1.5 w-1.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: st.color }}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm text-walnut">{t.task}</div>
+                      <div className="mt-0.5 flex items-center gap-2 font-mono text-[10px] text-dust">
+                        <span>{t.category}</span>
+                        <span>·</span>
+                        <span>{freqLabel(t.intervalMonths)}</span>
+                        <span>·</span>
+                        <span>{OWNER_DISPLAY[t.owner]}</span>
+                      </div>
+                    </div>
+                    <span
+                      className={cx(
+                        "shrink-0 font-mono text-[10px]",
+                        st.key === "overdue" ? "font-semibold text-terracotta" : "text-dust",
+                      )}
+                    >
+                      {t.nextDue ? relativeDay(t.nextDue) : ""}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </Card>
+
+        <Card className="p-6">
+          <SectionTitle
+            kicker="Utilities · insurance · tax"
+            right={
+              <Link
+                href="/app/bills"
+                className="flex items-center gap-1 text-xs text-terracotta hover:underline"
+              >
+                Bills <ArrowRight size={13} />
+              </Link>
+            }
+          >
+            Money out
+          </SectionTitle>
+          <div className="space-y-2.5">
+            {accounts.slice(0, 7).map((a) => (
+              <div key={a.id} className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="truncate text-sm text-walnut">{a.provider}</div>
+                  <div className="font-mono text-[10px] text-dust">
+                    {a.billingCycle}
+                    {a.dueDay ? ` · ${a.dueDay}` : ""}
+                  </div>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <span
+                    className={cx(
+                      "rounded-full px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider",
+                      a.autopay ? "bg-moss/15 text-moss" : "bg-terracotta/12 text-terracotta",
+                    )}
+                  >
+                    {a.autopay ? "auto" : "manual"}
+                  </span>
+                  <span className="font-mono text-sm text-walnut">
+                    {a.estMonthly != null ? fmtMoney(a.estMonthly) : "—"}
+                  </span>
+                </div>
+              </div>
+            ))}
+            {home.pendingBills.length > 0 && (
+              <div className="mt-3 border-t border-walnut/8 pt-3">
+                <div className="mb-1.5 font-mono text-[10px] uppercase tracking-wider text-dust">
+                  <Receipt size={11} className="mr-1 inline" /> Pending bills
+                </div>
+                {home.pendingBills.map((b) => (
+                  <div key={b.id} className="flex items-center justify-between text-sm">
+                    <span className="text-walnut/70">{b.period}</span>
+                    <span className="font-mono text-walnut">
+                      {fmtMoney(b.amount)}
+                      {b.dueDate ? (
+                        <span className="ml-1.5 text-[10px] text-dust">{fmtDateShort(b.dueDate)}</span>
+                      ) : null}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </Card>
       </div>
 
       {/* Progress */}

@@ -129,6 +129,64 @@ export const documents = pgTable("documents", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+// ---- Home OS: recurring maintenance + utility/bill tracking ----
+
+export const maintenanceTasks = pgTable("maintenance_tasks", {
+  id: serial("id").primaryKey(),
+  task: text("task").notNull(),
+  category: text("category").notNull().default("Interior"),
+  area: text("area"),
+  intervalMonths: integer("interval_months").notNull().default(12),
+  estMinutes: integer("est_minutes"),
+  owner: text("owner").notNull().default("adam"), // adam | mel | professional
+  notes: text("notes"),
+  lastDone: date("last_done"),
+  nextDue: date("next_due"),
+  active: boolean("active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const maintenanceLog = pgTable("maintenance_log", {
+  id: serial("id").primaryKey(),
+  taskId: integer("task_id"), // loose ref; log survives task deletion
+  taskName: text("task_name").notNull(),
+  doneDate: date("done_date").notNull(),
+  cost: integer("cost"), // whole dollars
+  vendor: text("vendor"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const homeAccounts = pgTable("home_accounts", {
+  id: serial("id").primaryKey(),
+  provider: text("provider").notNull(),
+  service: text("service").notNull().default("other"),
+  billingCycle: text("billing_cycle").notNull().default("monthly"),
+  autopay: boolean("autopay").notNull().default(false),
+  dueDay: text("due_day"), // "~15th", "Nov 15", "verify"
+  estMonthly: integer("est_monthly"), // normalized $/mo, whole dollars
+  accountRef: text("account_ref"), // vault pointer only — never a raw account #
+  portalUrl: text("portal_url"),
+  notes: text("notes"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const homeBills = pgTable("home_bills", {
+  id: serial("id").primaryKey(),
+  accountId: integer("account_id"),
+  period: text("period").notNull(), // "2026-07"
+  amount: integer("amount").notNull().default(0),
+  dueDate: date("due_date"),
+  status: text("status").notNull().default("pending"), // pending | paid
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 export type Task = typeof tasks.$inferSelect;
 export type NewTask = typeof tasks.$inferInsert;
 export type Payment = typeof payments.$inferSelect;
