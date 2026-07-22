@@ -141,7 +141,7 @@ export default function MaintenancePage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search tasks…"
-          className="w-52"
+          className="w-full sm:w-52"
         />
         <Select value={band} onChange={(e) => setBand(e.target.value)}>
           <option value="all">All statuses</option>
@@ -184,7 +184,100 @@ export default function MaintenancePage() {
           <Wrench size={16} className="mx-auto mb-1" /> No tasks match.
         </EmptyState>
       ) : (
-        <Card className="overflow-x-auto">
+        <>
+        {/* Mobile: card list (tables don't work on phones) */}
+        <div className="space-y-2 md:hidden">
+          {rows.map((t) => {
+            const st = maintStatus(t.nextDue);
+            if (editingId === t.id) {
+              return (
+                <TaskEditor
+                  key={t.id}
+                  task={t}
+                  onCancel={() => setEditingId(null)}
+                  onSave={async (data) => {
+                    await api.update(t.id, data);
+                    setEditingId(null);
+                  }}
+                />
+              );
+            }
+            return (
+              <Card key={t.id} className="p-3">
+                <div className="flex items-start gap-3">
+                  <button
+                    aria-label="Mark complete"
+                    onClick={() => setLoggingId(loggingId === t.id ? null : t.id)}
+                    className={cx(
+                      "mt-0.5 flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border transition",
+                      loggingId === t.id
+                        ? "border-moss bg-moss text-cream"
+                        : "border-walnut/20 text-walnut/25 active:border-moss",
+                    )}
+                  >
+                    <Check size={18} strokeWidth={2.5} />
+                  </button>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm leading-snug text-walnut">{t.task}</div>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-[10px] text-dust">
+                      <span>{t.category}</span>
+                      <span>·</span>
+                      <span>{freqLabel(t.intervalMonths)}</span>
+                      <span>·</span>
+                      <span>{OWNER_DISPLAY[t.owner]}</span>
+                      {t.nextDue && (
+                        <>
+                          <span>·</span>
+                          <span className={st.key === "overdue" ? "font-semibold text-terracotta" : ""}>
+                            due {fmtDateShort(t.nextDue)}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 flex-col items-end gap-1.5">
+                    <Badge color={st.color}>
+                      {st.key === "overdue" && st.days != null
+                        ? `${Math.abs(st.days)}d over`
+                        : st.key === "due-soon" && st.days != null
+                          ? st.days === 0 ? "today" : `${st.days}d`
+                          : st.key === "ok" ? "ok" : "—"}
+                    </Badge>
+                    <div className="flex">
+                      <button
+                        onClick={() => setEditingId(t.id)}
+                        className="cursor-pointer p-2 text-walnut/35 active:text-walnut"
+                        aria-label="Edit"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        onClick={() => api.remove(t.id)}
+                        className="cursor-pointer p-2 text-walnut/35 active:text-terracotta"
+                        aria-label="Delete"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                {loggingId === t.id && (
+                  <div className="mt-2 rounded-xl bg-moss/5">
+                    <CompleteRow
+                      onCancel={() => setLoggingId(null)}
+                      onSave={async (data) => {
+                        await completeTask(t.id, data);
+                        setLoggingId(null);
+                      }}
+                    />
+                  </div>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+
+        <Card className="hidden overflow-x-auto md:block">
           <table className="w-full min-w-[860px] border-collapse text-left">
             <thead className="sticky top-0 z-10">
               <tr className="border-b border-walnut/10 bg-linen/80 backdrop-blur">
@@ -299,6 +392,7 @@ export default function MaintenancePage() {
             </tbody>
           </table>
         </Card>
+        </>
       )}
     </div>
   );

@@ -154,7 +154,75 @@ export default function BillsPage() {
       {accountsApi.loading ? (
         <EmptyState>Loading…</EmptyState>
       ) : (
-        <Card className="mb-8 overflow-x-auto">
+        <>
+        {/* Mobile account cards */}
+        <div className="mb-8 space-y-2 md:hidden">
+          {accounts.map((a) =>
+            editingId === a.id ? (
+              <AccountEditor
+                key={a.id}
+                account={a}
+                onCancel={() => setEditingId(null)}
+                onSave={async (d) => {
+                  await accountsApi.update(a.id, d);
+                  setEditingId(null);
+                }}
+              />
+            ) : (
+              <Card key={a.id} className="p-3.5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium text-walnut">{a.provider}</div>
+                    <div className="mt-0.5 flex items-center gap-1.5">
+                      <Badge color={SERVICE_COLOR[a.service]}>{a.service}</Badge>
+                      <span className="font-mono text-[10px] text-dust">
+                        {a.billingCycle}
+                        {a.dueDay ? ` · ${a.dueDay}` : ""}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <span className="font-mono text-base text-walnut">
+                      {a.estMonthly != null ? fmtMoney(a.estMonthly) : "—"}
+                    </span>
+                    <button
+                      onClick={() => accountsApi.update(a.id, { autopay: !a.autopay })}
+                      className={cx(
+                        "min-h-8 cursor-pointer rounded-full px-3 py-1 font-mono text-[10px] uppercase tracking-wider transition",
+                        a.autopay
+                          ? "bg-moss/15 text-moss"
+                          : "bg-terracotta/12 text-terracotta",
+                      )}
+                    >
+                      {a.autopay ? "autopay ✓" : "no autopay"}
+                    </button>
+                  </div>
+                </div>
+                {a.notes && (
+                  <p className="mt-2 line-clamp-2 text-[11px] leading-snug text-walnut/50">{a.notes}</p>
+                )}
+                <div className="mt-1 flex justify-end">
+                  <button
+                    onClick={() => setEditingId(a.id)}
+                    className="cursor-pointer p-2 text-walnut/35 active:text-walnut"
+                    aria-label="Edit"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    onClick={() => accountsApi.remove(a.id)}
+                    className="cursor-pointer p-2 text-walnut/35 active:text-terracotta"
+                    aria-label="Delete"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </Card>
+            ),
+          )}
+        </div>
+
+        <Card className="mb-8 hidden overflow-x-auto md:block">
           <table className="w-full min-w-[720px] border-collapse text-left">
             <thead>
               <tr className="border-b border-walnut/10 bg-linen/80">
@@ -226,6 +294,7 @@ export default function BillsPage() {
             </tbody>
           </table>
         </Card>
+        </>
       )}
 
       {addingBill && (
@@ -252,7 +321,35 @@ export default function BillsPage() {
           estimates and the forecast sharpens.
         </EmptyState>
       ) : (
-        <Card className="overflow-x-auto">
+        <>
+        {/* Mobile ledger rows */}
+        <Card className="divide-y divide-walnut/8 md:hidden">
+          {bills.map((b) => (
+            <div key={b.id} className="flex items-center gap-3 px-3.5 py-2.5">
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-sm text-walnut">{accountName(b.accountId)}</div>
+                <div className="font-mono text-[10px] text-dust">
+                  {b.period}
+                  {b.dueDate ? ` · due ${fmtDateShort(b.dueDate)}` : ""}
+                </div>
+              </div>
+              <span className="font-mono text-sm text-walnut">{fmtMoney(b.amount)}</span>
+              <button
+                onClick={() =>
+                  billsApi.update(b.id, { status: b.status === "paid" ? "pending" : "paid" })
+                }
+                className={cx(
+                  "min-h-8 shrink-0 cursor-pointer rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider",
+                  b.status === "paid" ? "bg-moss/15 text-moss" : "bg-gold/15 text-gold",
+                )}
+              >
+                {b.status}
+              </button>
+            </div>
+          ))}
+        </Card>
+
+        <Card className="hidden overflow-x-auto md:block">
           <table className="w-full min-w-[560px] border-collapse text-left">
             <thead>
               <tr className="border-b border-walnut/10 bg-linen/80">
@@ -303,6 +400,7 @@ export default function BillsPage() {
             </tbody>
           </table>
         </Card>
+        </>
       )}
     </div>
   );
